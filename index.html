@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compound Interest Calculator - Watch Your Money Grow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --secondary: #14b8a6;
+            --secondary-light: #2dd4bf;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #f59e0b;
+            --gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(45deg, #0f172a, #1e293b);
+            overflow: hidden;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -200px;
+            left: -200px;
+            animation-duration: 25s;
+        }
+
+        .orb2 {
+            width: 350px;
+            height: 350px;
+            background: var(--secondary);
+            bottom: -150px;
+            right: -150px;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .orb3 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            top: 50%;
+            left: 50%;
+            animation-duration: 35s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -100px) scale(1.1); }
+            50% { transform: translate(-100px, 100px) scale(0.9); }
+            75% { transform: translate(50px, 50px) scale(1.05); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-panel {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .results-panel {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .label-with-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-icon {
+            width: 18px;
+            height: 18px;
+            background: var(--surface-light);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            position: relative;
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .info-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .info-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            color: var(--text);
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            font-weight: normal;
+            max-width: 350px;
+            white-space: normal;
+            line-height: 1.4;
+            min-width: 280px;
+        }
+
+        .info-icon:hover .info-tooltip {
+            opacity: 1;
+        }
+
+        .info-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--surface);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Custom styling for number input arrows */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        /* Custom number input controls */
+        .number-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .number-controls {
+            position: absolute;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .number-control {
+            background: var(--primary);
+            border: none;
+            width: 28px;
+            height: 20px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .number-control:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .number-control:active {
+            transform: scale(0.95);
+        }
+        
+        .number-input-wrapper input {
+            padding-right: 50px;
+        }
+        
+        /* Custom select dropdown styling */
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+            padding-right: 3rem;
+            cursor: pointer;
+        }
+        
+        select:hover {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+        
+        /* Style the dropdown options */
+        select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: 1rem;
+        }
+        
+        select option:hover {
+            background: var(--primary);
+        }
+
+        .input-addon {
+            position: absolute;
+            right: 1rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-light);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 0.5rem;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: glisten 3s infinite;
+        }
+
+        @keyframes glisten {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, var(--surface-light), var(--surface));
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #059669, #f59e0b);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .result-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: countUp 0.8s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: start;
+            position: relative;
+            z-index: 50;
+        }
+
+        .stat-card {
+            background: var(--surface-light);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+            z-index: auto;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--primary);
+            z-index: 200;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-info {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0 0 12px 12px;
+            padding: 0 1rem;
+            margin-top: -1px;
+            color: var(--text);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+            z-index: 100;
+        }
+        
+        .stat-card:hover .stat-info {
+            opacity: 1;
+            max-height: 6rem;
+            padding: 0.8rem 1rem;
+        }
+
+        #chart-container {
+            background: var(--surface-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 400px;
+            position: relative;
+        }
+
+        canvas {
+            max-height: 100%;
+        }
+
+        .chart-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .toggle-btn.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .insights {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .insight-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+        }
+
+        .insight-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--surface-light);
+            border: 2px solid var(--text-dim);
+            border-radius: 12px;
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="floating-orb orb1"></div>
+        <div class="floating-orb orb2"></div>
+        <div class="floating-orb orb3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Compound Interest Calculator</h1>
+            <p class="subtitle">Watch your wealth grow exponentially over time ✨</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <div class="input-group">
+                    <label for="initial">Initial Investment</label>
+                    <div class="number-input-wrapper">
+                        <input type="text" id="initial" value="10,000" min="0" step="100">
+                        <div class="number-controls">
+                            <button class="number-control" onclick="adjustValue('initial', 1000)">▲</button>
+                            <button class="number-control" onclick="adjustValue('initial', -1000)">▼</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="monthly">Monthly Contribution</label>
+                    <div class="number-input-wrapper">
+                        <input type="text" id="monthly" value="500" min="0" step="50">
+                        <div class="number-controls">
+                            <button class="number-control" onclick="adjustValue('monthly', 50)">▲</button>
+                            <button class="number-control" onclick="adjustValue('monthly', -50)">▼</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="years">Investment Period: <span id="yearsDisplay">25</span> years</label>
+                    <input type="range" id="years" min="1" max="50" value="25">
+                    <div class="range-labels">
+                        <span>1 year</span>
+                        <span>25 years</span>
+                        <span>50 years</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="label-with-info">
+                        <label for="rate" style="margin-bottom: 0;">Annual Return Rate: <span id="rateDisplay">8</span>%</label>
+                        <div class="info-icon">
+                            i
+                            <div class="info-tooltip">8% is a conservative estimate for S&P 500 returns. The historical average is about 10%, but using a lower estimate helps account for inflation and market volatility.</div>
+                        </div>
+                    </div>
+                    <input type="range" id="rate" min="1" max="30" value="8" step="0.5">
+                    <div class="range-labels">
+                        <span>1%</span>
+                        <span>15%</span>
+                        <span>30%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="compound">Compounding Frequency</label>
+                    <select id="compound">
+                        <option value="1" selected>Annually</option>
+                        <option value="4">Quarterly</option>
+                        <option value="12">Monthly</option>
+                        <option value="365">Daily</option>
+                    </select>
+                </div>
+
+                <button class="calculate-btn" onclick="calculate()">
+                    Calculate My Future Wealth
+                </button>
+
+                <button class="reset-btn" onclick="resetToDefaults()">
+                    Reset to Defaults
+                </button>
+            </div>
+
+            <div class="results-panel">
+                <div class="result-card">
+                    <div class="result-label">Future Value</div>
+                    <div class="result-value" id="futureValue">$0</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalContributions">$0</div>
+                        <div class="stat-label">Total Invested</div>
+                        <div class="stat-info">Initial investment + all monthly contributions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalInterest">$0</div>
+                        <div class="stat-label">Interest Earned</div>
+                        <div class="stat-info">The money your money made!</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="safeWithdrawal">$0/mo</div>
+                        <div class="stat-label">Safe Withdrawal</div>
+                        <div class="stat-info">4% rule: You can safely withdraw this much each month without depleting your portfolio</div>
+                    </div>
+                </div>
+
+                <div class="chart-toggle">
+                    <button class="toggle-btn active" onclick="switchChart('growth')">Growth Over Time</button>
+                    <button class="toggle-btn" onclick="switchChart('breakdown')">Contribution vs Interest</button>
+                </div>
+
+                <div id="chart-container">
+                    <canvas id="chart"></canvas>
+                </div>
+
+                <div class="insights" id="insights" style="display: none;">
+                    <div class="insight-title">💡 Key Insights</div>
+                    <div id="insightsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        let currentChart = null;
+        let chartType = 'growth';
+
+        // Function to adjust number inputs with custom controls
+        function adjustValue(inputId, change) {
+            const input = document.getElementById(inputId);
+            const currentValue = parseFloat(input.value.replace(/,/g, '')) || 0;
+            const newValue = Math.max(0, currentValue + change);
+            input.value = newValue.toLocaleString();
+            calculate();
+        }
+
+        // Update display values for sliders
+        document.getElementById('years').addEventListener('input', (e) => {
+            document.getElementById('yearsDisplay').textContent = e.target.value;
+            calculate();
+        });
+
+        document.getElementById('rate').addEventListener('input', (e) => {
+            document.getElementById('rateDisplay').textContent = e.target.value;
+            calculate();
+        });
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(amount);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                return '$' + (num / 1000000000).toFixed(1) + 'B';
+            } else if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return '$' + (num / 1000).toFixed(1) + 'K';
+            }
+            return formatCurrency(num);
+        }
+
+        function formatMonthlyAmount(num) {
+            if (num >= 10000) {
+                return '$' + (num / 1000).toFixed(1) + 'K/mo';
+            }
+            return formatCurrency(num) + '/mo';
+        }
+
+        function animateValue(id, start, end, duration, isMonthly = false) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            stepTime = Math.max(stepTime, minTimer);
+            const startTime = new Date().getTime();
+            const endTime = startTime + duration;
+            let timer;
+
+            function run() {
+                const now = new Date().getTime();
+                const remaining = Math.max((endTime - now) / duration, 0);
+                const value = end - (remaining * range);
+                
+                if (isMonthly) {
+                    obj.textContent = formatMonthlyAmount(value);
+                } else {
+                    obj.textContent = formatNumber(value);
+                }
+                
+                if (value < end) {
+                    requestAnimationFrame(run);
+                }
+            }
+            
+            requestAnimationFrame(run);
+        }
+
+        function calculate() {
+            const principal = parseFloat(document.getElementById('initial').value.replace(/,/g, '')) || 0;
+            const monthlyContribution = parseFloat(document.getElementById('monthly').value.replace(/,/g, '')) || 0;
+            const years = parseInt(document.getElementById('years').value);
+            const annualRate = parseFloat(document.getElementById('rate').value) / 100;
+            const compoundFrequency = parseInt(document.getElementById('compound').value);
+            
+            // Calculate future value with compound interest
+            const n = compoundFrequency;
+            const r = annualRate / n;
+            const t = years * n;
+            
+            // Future value of initial principal
+            const futureValuePrincipal = principal * Math.pow(1 + r, t);
+            
+            // Future value of monthly contributions
+            const monthlyRate = annualRate / 12;
+            const months = years * 12;
+            const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+            
+            const totalFutureValue = futureValuePrincipal + futureValueContributions;
+            const totalContributed = principal + (monthlyContribution * months);
+            const totalInterest = totalFutureValue - totalContributed;
+            
+            // Calculate safe withdrawal amount (4% rule)
+            const annualSafeWithdrawal = totalFutureValue * 0.04;
+            const monthlySafeWithdrawal = annualSafeWithdrawal / 12;
+            
+            // Animate values
+            animateValue('futureValue', 0, totalFutureValue, 1000);
+            animateValue('totalContributions', 0, totalContributed, 800);
+            animateValue('totalInterest', 0, totalInterest, 800);
+            animateValue('safeWithdrawal', 0, monthlySafeWithdrawal, 800, true);
+            
+            // Update main result with animation
+            const resultValue = document.getElementById('futureValue');
+            resultValue.style.animation = 'none';
+            setTimeout(() => {
+                resultValue.style.animation = 'countUp 0.8s ease-out';
+            }, 10);
+            
+            // Generate data for chart
+            generateChartData(principal, monthlyContribution, years, annualRate, compoundFrequency);
+            
+            // Generate insights
+            generateInsights(totalFutureValue, totalContributed, totalInterest, years, monthlyContribution, monthlySafeWithdrawal);
+        }
+
+        function generateChartData(principal, monthlyContribution, years, annualRate, compoundFrequency) {
+            const labels = [];
+            const principalData = [];
+            const interestData = [];
+            const totalData = [];
+            
+            for (let year = 0; year <= years; year++) {
+                labels.push(`Year ${year}`);
+                
+                const n = compoundFrequency;
+                const r = annualRate / n;
+                const t = year * n;
+                
+                const futureValuePrincipal = principal * Math.pow(1 + r, t);
+                const monthlyRate = annualRate / 12;
+                const months = year * 12;
+                const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+                
+                const totalValue = futureValuePrincipal + futureValueContributions;
+                const totalContributed = principal + (monthlyContribution * months);
+                const interest = totalValue - totalContributed;
+                
+                principalData.push(totalContributed);
+                interestData.push(interest);
+                totalData.push(totalValue);
+            }
+            
+            updateChart(labels, principalData, interestData, totalData);
+        }
+
+        function updateChart(labels, principalData, interestData, totalData) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const datasets = chartType === 'growth' ? [
+                {
+                    label: 'Total Value',
+                    data: totalData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                }
+            ] : [
+                {
+                    label: 'Principal',
+                    data: principalData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Interest',
+                    data: interestData,
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                }
+            ];
+            
+            currentChart = new Chart(ctx, {
+                type: chartType === 'growth' ? 'line' : 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 12,
+                                    weight: 600
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#94a3b8',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)',
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 13,
+                                    weight: 500
+                                },
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchChart(type) {
+            chartType = type;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            calculate();
+        }
+
+        function generateInsights(futureValue, contributed, interest, years, monthly, safeWithdrawal) {
+            const insights = document.getElementById('insights');
+            const insightsList = document.getElementById('insightsList');
+            
+            insights.style.display = 'block';
+            insightsList.innerHTML = '';
+            
+            const insightData = [];
+            
+            // Doubling insight (always show)
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            if (rate > 0) {
+                const doublingYears = Math.log(2) / Math.log(1 + rate);
+                insightData.push(`💰 Your money will double every ${doublingYears.toFixed(1)} years at this rate`);
+            }
+            
+            // Contribution vs growth - only show if interest exceeds contributions
+            if (interest > contributed) {
+                const growthRatio = (interest / contributed * 100).toFixed(0);
+                insightData.push(`🚀 Your interest (${growthRatio}% return) will exceed your contributions!`);
+            }
+            
+            // Safe withdrawal insight - always useful
+            if (safeWithdrawal > 500) {
+                insightData.push(`🏖️ You could safely withdraw ${formatCurrency(safeWithdrawal)}/month using the 4% rule`);
+            }
+            
+            // Millionaire milestone
+            if (futureValue < 1000000 && futureValue > 100000) {
+                let yearsToMillion = years;
+                let testValue = futureValue;
+                while (testValue < 1000000 && yearsToMillion < 50) {
+                    yearsToMillion++;
+                    testValue = calculateFutureValue(
+                        parseFloat(document.getElementById('initial').value),
+                        monthly,
+                        yearsToMillion,
+                        rate,
+                        parseInt(document.getElementById('compound').value)
+                    );
+                }
+                if (yearsToMillion < 50) {
+                    insightData.push(`🎯 Continue for ${yearsToMillion - years} more years to reach $1 million`);
+                }
+            }
+            
+            // Display insights
+            insightData.forEach(insight => {
+                const item = document.createElement('div');
+                item.className = 'insight-item';
+                item.innerHTML = insight;
+                insightsList.appendChild(item);
+            });
+        }
+
+        function calculateFutureValue(principal, monthlyContribution, years, annualRate, compoundFrequency) {
+            const n = compoundFrequency;
+            const r = annualRate / n;
+            const t = years * n;
+            
+            const futureValuePrincipal = principal * Math.pow(1 + r, t);
+            const monthlyRate = annualRate / 12;
+            const months = years * 12;
+            const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+            
+            return futureValuePrincipal + futureValueContributions;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                // Remove focus from the active element
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
+                calculate();
+            }
+        });
+
+        // Share results functionality
+        function shareResults() {
+            const futureValue = document.getElementById('futureValue').textContent;
+            const text = `I just calculated my investment future! With compound interest, my investment could grow to ${futureValue}! Calculate yours at [YourSite].`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Investment Growth Calculation',
+                    text: text
+                });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Results copied to clipboard!');
+            }
+        }
+
+        // Smooth scroll for mobile
+        if ('scrollBehavior' in document.documentElement.style === false) {
+            import('https://cdn.jsdelivr.net/npm/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js').then(() => {
+                window.__forceSmoothScrollPolyfill__ = true;
+                smoothscroll.polyfill();
+            });
+        }
+
+        // Initialize with calculation
+        calculate();
+
+        // Add some interactive easter eggs
+        let clickCount = 0;
+        document.querySelector('h1').addEventListener('click', function() {
+            clickCount++;
+            if (clickCount === 5) {
+                this.style.animation = 'glow 0.5s ease-in-out 3';
+                document.querySelectorAll('.floating-orb').forEach(orb => {
+                    orb.style.animationDuration = '5s';
+                });
+                setTimeout(() => {
+                    clickCount = 0;
+                    document.querySelectorAll('.floating-orb').forEach(orb => {
+                        orb.style.animationDuration = '';
+                    });
+                }, 3000);
+            }
+        });
+
+        // Confetti effect for milestones
+        function createConfetti() {
+            const colors = ['#10b981', '#059669', '#14b8a6', '#f59e0b'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.opacity = Math.random() + 0.5;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.transition = 'all 3s ease-out';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.style.top = '100%';
+                    confetti.style.transform = `rotate(${Math.random() * 720}deg) translateX(${Math.random() * 200 - 100}px)`;
+                    confetti.style.opacity = '0';
+                }, 100);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3100);
+            }
+        }
+
+        // Check for milestone values
+        let lastFutureValue = 0;
+        const originalCalculate = calculate;
+        calculate = function() {
+            originalCalculate();
+            
+            setTimeout(() => {
+                const currentValue = parseFloat(document.getElementById('futureValue').textContent.replace(/[^0-9.-]+/g, ''));
+                
+                // Trigger confetti for crossing major milestones
+                const milestones = [100000, 250000, 500000, 1000000, 5000000, 10000000];
+                for (const milestone of milestones) {
+                    if (lastFutureValue < milestone && currentValue >= milestone) {
+                        createConfetti();
+                        
+                        // Special animation for million dollar milestone
+                        if (milestone === 1000000) {
+                            document.querySelector('.result-value').style.animation = 'glow 2s ease-in-out infinite';
+                            setTimeout(() => {
+                                document.querySelector('.result-value').style.animation = '';
+                            }, 4000);
+                        }
+                        break;
+                    }
+                }
+                lastFutureValue = currentValue;
+            }, 1000);
+        };
+
+        // Recalculate when page becomes visible (for mobile)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                calculate();
+            }
+        });
+
+        // Add number formatting to inputs as user types
+        document.getElementById('initial').addEventListener('input', function() {
+            // Allow only numbers and commas
+            let value = this.value.replace(/[^\d]/g, '');
+            if (value) {
+                const numValue = parseInt(value);
+                this.value = numValue.toLocaleString();
+            }
+        });
+
+        document.getElementById('initial').addEventListener('blur', function() {
+            const value = parseFloat(this.value.replace(/,/g, ''));
+            if (!isNaN(value)) {
+                this.value = value.toLocaleString();
+            } else {
+                this.value = '0';
+            }
+            calculate();
+        });
+
+        document.getElementById('monthly').addEventListener('input', function() {
+            // Allow only numbers and commas
+            let value = this.value.replace(/[^\d]/g, '');
+            if (value) {
+                const numValue = parseInt(value);
+                this.value = numValue.toLocaleString();
+            }
+        });
+
+        document.getElementById('monthly').addEventListener('blur', function() {
+            const value = parseFloat(this.value.replace(/,/g, ''));
+            if (!isNaN(value)) {
+                this.value = value.toLocaleString();
+            } else {
+                this.value = '0';
+            }
+            calculate();
+        });
+
+        // Preset scenarios
+        const presets = {
+            conservative: { initial: 5000, monthly: 200, years: 30, rate: 5 },
+            moderate: { initial: 10000, monthly: 500, years: 25, rate: 8 },
+            aggressive: { initial: 20000, monthly: 1000, years: 20, rate: 10 },
+            fire: { initial: 50000, monthly: 2000, years: 15, rate: 9 }
+        };
+
+        // Reset to default values
+        function resetToDefaults() {
+            document.getElementById('initial').value = '10,000';
+            document.getElementById('monthly').value = '500';
+            document.getElementById('years').value = 25;
+            document.getElementById('yearsDisplay').textContent = 25;
+            document.getElementById('rate').value = 8;
+            document.getElementById('rateDisplay').textContent = 8;
+            document.getElementById('compound').value = 1;
+            calculate();
+        }
+    </script>
+</body>
+</html>
