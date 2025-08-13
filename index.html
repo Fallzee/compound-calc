@@ -1,34 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compound Interest Calculator - Watch Your Money Grow</title>
-
-    <!-- SEO & indexing -->
-    <link rel="canonical" href="https://moneygrowchart.com/">
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="Free, beautiful compound interest calculator. See future value, total contributions, interest earned, safe withdrawal, and an interactive growth chart.">
-    
-    <!-- Social previews -->
-    <meta property="og:title" content="Compound Interest Calculator">
-    <meta property="og:description" content="Watch your wealth grow with a fast, elegant compound interest calculator.">
-    <meta property="og:url" content="https://moneygrowchart.com/">
-    <meta property="og:type" content="website">
-
-    <meta property="og:image" content="https://moneygrowchart.com/preview.jpg?v=2">
-    <meta property="og:image:secure_url" content="https://moneygrowchart.com/preview.jpg?v=2">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Graph showing compound interest growth reaching $544,000">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://moneygrowchart.com/preview.jpg?v=2">
-
-
-
     <style>
         * {
             margin: 0;
@@ -314,7 +289,6 @@
             box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
         }
         
-        /* Custom styling for number input arrows */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -325,7 +299,6 @@
             -moz-appearance: textfield;
         }
         
-        /* Custom number input controls */
         .number-input-wrapper {
             position: relative;
             display: flex;
@@ -372,7 +345,6 @@
             padding-right: 50px;
         }
         
-        /* Custom select dropdown styling */
         select {
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
@@ -386,7 +358,6 @@
             background-color: rgba(16, 185, 129, 0.05);
         }
         
-        /* Style the dropdown options */
         select option {
             background: var(--surface);
             color: var(--text);
@@ -840,43 +811,50 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" 
+            integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" 
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <script>
+        // Global variables
         let currentChart = null;
         let chartType = 'growth';
+        let lastFutureValue = 0;
+        let clickCount = 0;
 
-        // Function to adjust number inputs with custom controls
-        function adjustValue(inputId, change) {
-            const input = document.getElementById(inputId);
-            const currentValue = parseFloat(input.value.replace(/,/g, '')) || 0;
-            const newValue = Math.max(0, currentValue + change);
-            input.value = newValue.toLocaleString();
-            calculate();
+        // Configuration
+        const config = {
+            maxValue: 999999999,
+            animationDuration: 1000,
+            defaultValues: {
+                initial: 10000,
+                monthly: 500,
+                years: 25,
+                rate: 8,
+                compound: 1
+            }
+        };
+
+        // Utility functions
+        function sanitizeNumber(value, min = 0, max = config.maxValue) {
+            if (typeof value === 'string') {
+                value = value.replace(/[^\d.-]/g, '');
+            }
+            const num = parseFloat(value) || 0;
+            return Math.max(min, Math.min(max, num));
         }
 
-        // Update display values for sliders
-        document.getElementById('years').addEventListener('input', (e) => {
-            document.getElementById('yearsDisplay').textContent = e.target.value;
-            calculate();
-        });
-
-        document.getElementById('rate').addEventListener('input', (e) => {
-            document.getElementById('rateDisplay').textContent = e.target.value;
-            calculate();
-        });
-
-        // Auto-calculate on input change
-        document.querySelectorAll('input, select').forEach(input => {
-            input.addEventListener('input', calculate);
-        });
-
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-            }).format(amount);
+            try {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).format(amount);
+            } catch (e) {
+                return '$' + Math.round(amount).toLocaleString();
+            }
         }
 
         function formatNumber(num) {
@@ -897,83 +875,109 @@
             return formatCurrency(num) + '/mo';
         }
 
-        function animateValue(id, start, end, duration, isMonthly = false) {
-            const obj = document.getElementById(id);
-            const range = end - start;
-            const minTimer = 50;
-            let stepTime = Math.abs(Math.floor(duration / range));
-            stepTime = Math.max(stepTime, minTimer);
-            const startTime = new Date().getTime();
-            const endTime = startTime + duration;
-            let timer;
+        // Animation function
+        function animateValue(elementId, startValue, endValue, duration, formatter = formatNumber) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
 
-            function run() {
-                const now = new Date().getTime();
-                const remaining = Math.max((endTime - now) / duration, 0);
-                const value = end - (remaining * range);
+            const startTime = performance.now();
+            const startNum = sanitizeNumber(startValue);
+            const endNum = sanitizeNumber(endValue);
+            const range = endNum - startNum;
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easedProgress = 1 - Math.pow(1 - progress, 3); // ease out cubic
+                const currentValue = startNum + (range * easedProgress);
                 
-                if (isMonthly) {
-                    obj.textContent = formatMonthlyAmount(value);
+                element.textContent = formatter(currentValue);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
                 } else {
-                    obj.textContent = formatNumber(value);
-                }
-                
-                if (value < end) {
-                    requestAnimationFrame(run);
+                    element.textContent = formatter(endNum);
                 }
             }
             
-            requestAnimationFrame(run);
+            requestAnimationFrame(animate);
         }
 
-        function calculate() {
-            const principal = parseFloat(document.getElementById('initial').value.replace(/,/g, '')) || 0;
-            const monthlyContribution = parseFloat(document.getElementById('monthly').value.replace(/,/g, '')) || 0;
-            const years = parseInt(document.getElementById('years').value);
-            const annualRate = parseFloat(document.getElementById('rate').value) / 100;
-            const compoundFrequency = parseInt(document.getElementById('compound').value);
-            
-            // Calculate future value with compound interest
-            const n = compoundFrequency;
-            const r = annualRate / n;
-            const t = years * n;
-            
-            // Future value of initial principal
-            const futureValuePrincipal = principal * Math.pow(1 + r, t);
-            
-            // Future value of monthly contributions
-            const monthlyRate = annualRate / 12;
-            const months = years * 12;
-            const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
-            
-            const totalFutureValue = futureValuePrincipal + futureValueContributions;
-            const totalContributed = principal + (monthlyContribution * months);
-            const totalInterest = totalFutureValue - totalContributed;
-            
-            // Calculate safe withdrawal amount (4% rule)
-            const annualSafeWithdrawal = totalFutureValue * 0.04;
-            const monthlySafeWithdrawal = annualSafeWithdrawal / 12;
-            
-            // Animate values
-            animateValue('futureValue', 0, totalFutureValue, 1000);
-            animateValue('totalContributions', 0, totalContributed, 800);
-            animateValue('totalInterest', 0, totalInterest, 800);
-            animateValue('safeWithdrawal', 0, monthlySafeWithdrawal, 800, true);
-            
-            // Update main result with animation
-            const resultValue = document.getElementById('futureValue');
-            resultValue.style.animation = 'none';
-            setTimeout(() => {
-                resultValue.style.animation = 'countUp 0.8s ease-out';
-            }, 10);
-            
-            // Generate data for chart
-            generateChartData(principal, monthlyContribution, years, annualRate, compoundFrequency);
-            
-            // Generate insights
-            generateInsights(totalFutureValue, totalContributed, totalInterest, years, monthlyContribution, monthlySafeWithdrawal);
+        // Calculation functions
+        function calculateCompoundInterest(principal, monthlyContribution, years, annualRate, compoundFrequency) {
+            try {
+                // Sanitize inputs
+                principal = sanitizeNumber(principal);
+                monthlyContribution = sanitizeNumber(monthlyContribution);
+                years = sanitizeNumber(years, 1, 100);
+                annualRate = sanitizeNumber(annualRate, 0.1, 50) / 100; // Convert to decimal
+                compoundFrequency = Math.max(1, Math.floor(compoundFrequency));
+
+                // Calculate compound interest for principal
+                const periodicRate = annualRate / compoundFrequency;
+                const totalPeriods = years * compoundFrequency;
+                
+                // Future value of initial principal
+                const futureValuePrincipal = principal * Math.pow(1 + periodicRate, totalPeriods);
+                
+                // Future value of monthly contributions
+                let futureValueContributions = 0;
+                const monthsTotal = years * 12;
+                
+                // Calculate each monthly contribution's compound growth
+                for (let month = 1; month <= monthsTotal; month++) {
+                    const monthsRemaining = monthsTotal - month + 1;
+                    const periodsRemaining = (monthsRemaining / 12) * compoundFrequency;
+                    futureValueContributions += monthlyContribution * Math.pow(1 + periodicRate, periodsRemaining);
+                }
+                
+                const totalFutureValue = futureValuePrincipal + futureValueContributions;
+                const totalContributed = principal + (monthlyContribution * monthsTotal);
+                const totalInterest = totalFutureValue - totalContributed;
+                
+                // Safe withdrawal (4% rule)
+                const annualSafeWithdrawal = totalFutureValue * 0.04;
+                const monthlySafeWithdrawal = annualSafeWithdrawal / 12;
+                
+                return {
+                    futureValue: totalFutureValue,
+                    totalContributed,
+                    totalInterest,
+                    monthlySafeWithdrawal
+                };
+            } catch (error) {
+                console.error('Calculation error:', error);
+                return {
+                    futureValue: 0,
+                    totalContributed: 0,
+                    totalInterest: 0,
+                    monthlySafeWithdrawal: 0
+                };
+            }
         }
 
+        // Input handling functions
+        function adjustValue(inputId, change) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const currentValue = sanitizeNumber(input.value.replace(/,/g, ''));
+            const newValue = Math.max(0, currentValue + change);
+            input.value = newValue.toLocaleString();
+            calculate();
+        }
+
+        function getInputValues() {
+            return {
+                principal: sanitizeNumber(document.getElementById('initial').value.replace(/,/g, '')),
+                monthlyContribution: sanitizeNumber(document.getElementById('monthly').value.replace(/,/g, '')),
+                years: sanitizeNumber(document.getElementById('years').value, 1, 100),
+                annualRate: sanitizeNumber(document.getElementById('rate').value, 0.1, 50),
+                compoundFrequency: parseInt(document.getElementById('compound').value) || 1
+            };
+        }
+
+        // Chart functions
         function generateChartData(principal, monthlyContribution, years, annualRate, compoundFrequency) {
             const labels = [];
             const principalData = [];
@@ -983,70 +987,68 @@
             for (let year = 0; year <= years; year++) {
                 labels.push(`Year ${year}`);
                 
-                const n = compoundFrequency;
-                const r = annualRate / n;
-                const t = year * n;
-                
-                const futureValuePrincipal = principal * Math.pow(1 + r, t);
-                const monthlyRate = annualRate / 12;
-                const months = year * 12;
-                const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
-                
-                const totalValue = futureValuePrincipal + futureValueContributions;
-                const totalContributed = principal + (monthlyContribution * months);
-                const interest = totalValue - totalContributed;
-                
-                principalData.push(totalContributed);
-                interestData.push(interest);
-                totalData.push(totalValue);
+                if (year === 0) {
+                    principalData.push(principal);
+                    interestData.push(0);
+                    totalData.push(principal);
+                } else {
+                    const result = calculateCompoundInterest(
+                        principal, monthlyContribution, year, annualRate, compoundFrequency
+                    );
+                    
+                    principalData.push(result.totalContributed);
+                    interestData.push(result.totalInterest);
+                    totalData.push(result.futureValue);
+                }
             }
             
-            updateChart(labels, principalData, interestData, totalData);
+            return { labels, principalData, interestData, totalData };
         }
 
-        function updateChart(labels, principalData, interestData, totalData) {
-            const ctx = document.getElementById('chart').getContext('2d');
-            
+        function updateChart(chartData) {
+            const ctx = document.getElementById('chart');
+            if (!ctx) return;
+
+            // Destroy existing chart
             if (currentChart) {
                 currentChart.destroy();
+                currentChart = null;
             }
-            
-            const datasets = chartType === 'growth' ? [
-                {
-                    label: 'Total Value',
-                    data: totalData,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                }
-            ] : [
+
+            const datasets = chartType === 'growth' ? [{
+                label: 'Total Value',
+                data: chartData.totalData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+            }] : [
                 {
                     label: 'Principal',
-                    data: principalData,
+                    data: chartData.principalData,
                     backgroundColor: 'rgba(59, 130, 246, 0.8)',
                     borderColor: '#3b82f6',
                     borderWidth: 2,
                 },
                 {
                     label: 'Interest',
-                    data: interestData,
+                    data: chartData.interestData,
                     backgroundColor: 'rgba(16, 185, 129, 0.8)',
                     borderColor: '#10b981',
                     borderWidth: 2,
                 }
             ];
-            
-            currentChart = new Chart(ctx, {
+
+            currentChart = new Chart(ctx.getContext('2d'), {
                 type: chartType === 'growth' ? 'line' : 'bar',
                 data: {
-                    labels: labels,
+                    labels: chartData.labels,
                     datasets: datasets
                 },
                 options: {
@@ -1062,10 +1064,7 @@
                             position: 'top',
                             labels: {
                                 color: '#e2e8f0',
-                                font: {
-                                    size: 12,
-                                    weight: 600
-                                },
+                                font: { size: 12, weight: 600 },
                                 padding: 20
                             }
                         },
@@ -1087,26 +1086,17 @@
                     },
                     scales: {
                         x: {
-                            grid: {
-                                display: false,
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: {
-                                    size: 11
-                                }
+                                font: { size: 11 }
                             }
                         },
                         y: {
-                            grid: {
-                                color: 'rgba(148, 163, 184, 0.1)',
-                            },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
                             ticks: {
                                 color: '#94a3b8',
-                                font: {
-                                    size: 13,
-                                    weight: 500
-                                },
+                                font: { size: 13, weight: 500 },
                                 callback: function(value) {
                                     return formatNumber(value);
                                 }
@@ -1119,261 +1109,308 @@
 
         function switchChart(type) {
             chartType = type;
+            
+            // Update button states
             document.querySelectorAll('.toggle-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
+            
             calculate();
         }
 
-        function generateInsights(futureValue, contributed, interest, years, monthly, safeWithdrawal) {
-            const insights = document.getElementById('insights');
-            const insightsList = document.getElementById('insightsList');
+        // Insights functions
+        function generateInsights(result, inputs) {
+            const insights = [];
             
-            insights.style.display = 'block';
-            insightsList.innerHTML = '';
-            
-            const insightData = [];
-            
-            // Doubling insight (always show)
-            const rate = parseFloat(document.getElementById('rate').value) / 100;
-            if (rate > 0) {
-                const doublingYears = Math.log(2) / Math.log(1 + rate);
-                insightData.push(`💰 Your money will double every ${doublingYears.toFixed(1)} years at this rate`);
+            // Doubling time
+            const doublingYears = Math.log(2) / Math.log(1 + inputs.annualRate / 100);
+            if (doublingYears < 50) {
+                insights.push(`💰 Your money will double every ${doublingYears.toFixed(1)} years at this rate`);
             }
             
-            // Contribution vs growth - only show if interest exceeds contributions
-            if (interest > contributed) {
-                const growthRatio = (interest / contributed * 100).toFixed(0);
-                insightData.push(`🚀 Your interest (${growthRatio}% return) will exceed your contributions!`);
+            // Growth vs contributions
+            if (result.totalInterest > result.totalContributed) {
+                const growthRatio = (result.totalInterest / result.totalContributed * 100).toFixed(0);
+                insights.push(`🚀 Your interest (${growthRatio}% return) will exceed your contributions!`);
             }
             
-            // Safe withdrawal insight - always useful
-            if (safeWithdrawal > 500) {
-                insightData.push(`🏖️ You could safely withdraw ${formatCurrency(safeWithdrawal)}/month using the 4% rule`);
+            // Safe withdrawal
+            if (result.monthlySafeWithdrawal > 500) {
+                insights.push(`🏖️ You could safely withdraw ${formatCurrency(result.monthlySafeWithdrawal)}/month using the 4% rule`);
             }
             
             // Millionaire milestone
-            if (futureValue < 1000000 && futureValue > 100000) {
-                let yearsToMillion = years;
-                let testValue = futureValue;
+            if (result.futureValue < 1000000 && result.futureValue > 100000) {
+                let yearsToMillion = inputs.years;
+                let testValue = result.futureValue;
+                
                 while (testValue < 1000000 && yearsToMillion < 50) {
                     yearsToMillion++;
-                    testValue = calculateFutureValue(
-                        parseFloat(document.getElementById('initial').value),
-                        monthly,
-                        yearsToMillion,
-                        rate,
-                        parseInt(document.getElementById('compound').value)
+                    const testResult = calculateCompoundInterest(
+                        inputs.principal, inputs.monthlyContribution, yearsToMillion, inputs.annualRate, inputs.compoundFrequency
                     );
+                    testValue = testResult.futureValue;
                 }
+                
                 if (yearsToMillion < 50) {
-                    insightData.push(`🎯 Continue for ${yearsToMillion - years} more years to reach $1 million`);
+                    const additionalYears = yearsToMillion - inputs.years;
+                    if (additionalYears > 0) {
+                        insights.push(`🎯 Continue for ${additionalYears} more years to reach $1 million`);
+                    }
                 }
             }
             
-            // Display insights
-            insightData.forEach(insight => {
-                const item = document.createElement('div');
-                item.className = 'insight-item';
-                item.innerHTML = insight;
-                insightsList.appendChild(item);
-            });
+            return insights;
         }
 
-        function calculateFutureValue(principal, monthlyContribution, years, annualRate, compoundFrequency) {
-            const n = compoundFrequency;
-            const r = annualRate / n;
-            const t = years * n;
+        function updateInsights(insights) {
+            const insightsContainer = document.getElementById('insights');
+            const insightsList = document.getElementById('insightsList');
             
-            const futureValuePrincipal = principal * Math.pow(1 + r, t);
-            const monthlyRate = annualRate / 12;
-            const months = years * 12;
-            const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
-            
-            return futureValuePrincipal + futureValueContributions;
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                // Remove focus from the active element
-                if (document.activeElement) {
-                    document.activeElement.blur();
-                }
-                calculate();
-            }
-        });
-
-        // Share results functionality
-        function shareResults() {
-            const futureValue = document.getElementById('futureValue').textContent;
-            const text = `I just calculated my investment future! With compound interest, my investment could grow to ${futureValue}! Calculate yours at [YourSite].`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Investment Growth Calculation',
-                    text: text
-                });
+            if (insights.length > 0) {
+                insightsContainer.style.display = 'block';
+                insightsList.innerHTML = insights.map(insight => 
+                    `<div class="insight-item">${insight}</div>`
+                ).join('');
             } else {
-                navigator.clipboard.writeText(text);
-                alert('Results copied to clipboard!');
+                insightsContainer.style.display = 'none';
             }
         }
 
-        // Smooth scroll for mobile
-        if ('scrollBehavior' in document.documentElement.style === false) {
-            import('https://cdn.jsdelivr.net/npm/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js').then(() => {
-                window.__forceSmoothScrollPolyfill__ = true;
-                smoothscroll.polyfill();
-            });
-        }
-
-        // Initialize with calculation
-        calculate();
-
-        // Add some interactive easter eggs
-        let clickCount = 0;
-        document.querySelector('h1').addEventListener('click', function() {
-            clickCount++;
-            if (clickCount === 5) {
-                this.style.animation = 'glow 0.5s ease-in-out 3';
-                document.querySelectorAll('.floating-orb').forEach(orb => {
-                    orb.style.animationDuration = '5s';
-                });
-                setTimeout(() => {
-                    clickCount = 0;
-                    document.querySelectorAll('.floating-orb').forEach(orb => {
-                        orb.style.animationDuration = '';
-                    });
-                }, 3000);
-            }
-        });
-
-        // Confetti effect for milestones
+        // Effects functions
         function createConfetti() {
             const colors = ['#10b981', '#059669', '#14b8a6', '#f59e0b'];
+            
             for (let i = 0; i < 50; i++) {
                 const confetti = document.createElement('div');
-                confetti.style.position = 'fixed';
-                confetti.style.width = '10px';
-                confetti.style.height = '10px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = '-10px';
-                confetti.style.opacity = Math.random() + 0.5;
-                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-                confetti.style.transition = 'all 3s ease-out';
+                confetti.style.cssText = `
+                    position: fixed;
+                    width: 10px;
+                    height: 10px;
+                    background-color: ${colors[Math.floor(Math.random() * colors.length)]};
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    opacity: ${Math.random() + 0.5};
+                    transform: rotate(${Math.random() * 360}deg);
+                    transition: all 3s ease-out;
+                    pointer-events: none;
+                    z-index: 10000;
+                `;
+                
                 document.body.appendChild(confetti);
                 
+                // Animate
                 setTimeout(() => {
                     confetti.style.top = '100%';
                     confetti.style.transform = `rotate(${Math.random() * 720}deg) translateX(${Math.random() * 200 - 100}px)`;
                     confetti.style.opacity = '0';
                 }, 100);
                 
+                // Remove
                 setTimeout(() => {
-                    confetti.remove();
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
                 }, 3100);
             }
         }
 
-        // Check for milestone values
-        let lastFutureValue = 0;
-        const originalCalculate = calculate;
-        calculate = function() {
-            originalCalculate();
+        function checkMilestones(currentValue, previousValue) {
+            const milestones = [100000, 250000, 500000, 1000000, 5000000, 10000000];
             
-            setTimeout(() => {
-                const currentValue = parseFloat(document.getElementById('futureValue').textContent.replace(/[^0-9.-]+/g, ''));
-                
-                // Trigger confetti for crossing major milestones
-                const milestones = [100000, 250000, 500000, 1000000, 5000000, 10000000];
-                for (const milestone of milestones) {
-                    if (lastFutureValue < milestone && currentValue >= milestone) {
-                        createConfetti();
-                        
-                        // Special animation for million dollar milestone
-                        if (milestone === 1000000) {
-                            document.querySelector('.result-value').style.animation = 'glow 2s ease-in-out infinite';
+            for (const milestone of milestones) {
+                if (previousValue < milestone && currentValue >= milestone) {
+                    createConfetti();
+                    
+                    if (milestone === 1000000) {
+                        const resultElement = document.getElementById('futureValue');
+                        if (resultElement) {
+                            resultElement.style.animation = 'glow 2s ease-in-out 3';
                             setTimeout(() => {
-                                document.querySelector('.result-value').style.animation = '';
-                            }, 4000);
+                                resultElement.style.animation = '';
+                            }, 6000);
                         }
-                        break;
                     }
+                    break;
                 }
-                lastFutureValue = currentValue;
-            }, 1000);
-        };
-
-        // Recalculate when page becomes visible (for mobile)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                calculate();
             }
-        });
+        }
 
-        // Add number formatting to inputs as user types
-        document.getElementById('initial').addEventListener('input', function() {
-            // Allow only numbers and commas
-            let value = this.value.replace(/[^\d]/g, '');
-            if (value) {
-                const numValue = parseInt(value);
-                this.value = numValue.toLocaleString();
+        // Main calculation function
+        function calculate() {
+            try {
+                const inputs = getInputValues();
+                const result = calculateCompoundInterest(
+                    inputs.principal,
+                    inputs.monthlyContribution,
+                    inputs.years,
+                    inputs.annualRate,
+                    inputs.compoundFrequency
+                );
+
+                // Animate results
+                animateValue('futureValue', 0, result.futureValue, config.animationDuration);
+                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8);
+                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
+                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
+
+                // Update chart
+                setTimeout(() => {
+                    const chartData = generateChartData(
+                        inputs.principal,
+                        inputs.monthlyContribution,
+                        inputs.years,
+                        inputs.annualRate,
+                        inputs.compoundFrequency
+                    );
+                    updateChart(chartData);
+                }, 100);
+
+                // Generate insights
+                const insights = generateInsights(result, inputs);
+                updateInsights(insights);
+
+                // Check milestones
+                checkMilestones(result.futureValue, lastFutureValue);
+                lastFutureValue = result.futureValue;
+
+                // Trigger result animation
+                const resultValue = document.getElementById('futureValue');
+                if (resultValue) {
+                    resultValue.style.animation = 'none';
+                    setTimeout(() => {
+                        resultValue.style.animation = 'countUp 0.8s ease-out';
+                    }, 10);
+                }
+            } catch (error) {
+                console.error('Calculation error:', error);
             }
-        });
+        }
 
-        document.getElementById('initial').addEventListener('blur', function() {
-            const value = parseFloat(this.value.replace(/,/g, ''));
-            if (!isNaN(value)) {
-                this.value = value.toLocaleString();
-            } else {
-                this.value = '0';
-            }
-            calculate();
-        });
-
-        document.getElementById('monthly').addEventListener('input', function() {
-            // Allow only numbers and commas
-            let value = this.value.replace(/[^\d]/g, '');
-            if (value) {
-                const numValue = parseInt(value);
-                this.value = numValue.toLocaleString();
-            }
-        });
-
-        document.getElementById('monthly').addEventListener('blur', function() {
-            const value = parseFloat(this.value.replace(/,/g, ''));
-            if (!isNaN(value)) {
-                this.value = value.toLocaleString();
-            } else {
-                this.value = '0';
-            }
-            calculate();
-        });
-
-        // Preset scenarios
-        const presets = {
-            conservative: { initial: 5000, monthly: 200, years: 30, rate: 5 },
-            moderate: { initial: 10000, monthly: 500, years: 25, rate: 8 },
-            aggressive: { initial: 20000, monthly: 1000, years: 20, rate: 10 },
-            fire: { initial: 50000, monthly: 2000, years: 15, rate: 9 }
-        };
-
-        // Reset to default values
+        // Reset function
         function resetToDefaults() {
-            document.getElementById('initial').value = '10,000';
-            document.getElementById('monthly').value = '500';
-            document.getElementById('years').value = 25;
-            document.getElementById('yearsDisplay').textContent = 25;
-            document.getElementById('rate').value = 8;
-            document.getElementById('rateDisplay').textContent = 8;
-            document.getElementById('compound').value = 1;
+            const defaults = config.defaultValues;
+            
+            document.getElementById('initial').value = defaults.initial.toLocaleString();
+            document.getElementById('monthly').value = defaults.monthly.toLocaleString();
+            document.getElementById('years').value = defaults.years;
+            document.getElementById('rate').value = defaults.rate;
+            document.getElementById('compound').value = defaults.compound;
+            
+            document.getElementById('yearsDisplay').textContent = defaults.years;
+            document.getElementById('rateDisplay').textContent = defaults.rate;
+            
+            lastFutureValue = 0;
             calculate();
+        }
+
+        // Event listeners setup
+        function setupEventListeners() {
+            // Slider displays
+            document.getElementById('years').addEventListener('input', (e) => {
+                document.getElementById('yearsDisplay').textContent = e.target.value;
+                calculate();
+            });
+
+            document.getElementById('rate').addEventListener('input', (e) => {
+                document.getElementById('rateDisplay').textContent = e.target.value;
+                calculate();
+            });
+
+            // Auto-calculate on input change
+            ['initial', 'monthly', 'compound'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculate);
+                }
+            });
+
+            // Number input formatting
+            ['initial', 'monthly'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        let value = this.value.replace(/[^\d]/g, '');
+                        if (value) {
+                            const numValue = parseInt(value);
+                            this.value = numValue.toLocaleString();
+                        }
+                    });
+
+                    input.addEventListener('blur', function() {
+                        const value = sanitizeNumber(this.value.replace(/,/g, ''));
+                        this.value = value.toLocaleString();
+                        calculate();
+                    });
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+                    calculate();
+                }
+            });
+
+            // Easter egg
+            document.querySelector('h1').addEventListener('click', function() {
+                clickCount++;
+                if (clickCount === 5) {
+                    this.style.animation = 'glow 0.5s ease-in-out 3';
+                    document.querySelectorAll('.floating-orb').forEach(orb => {
+                        orb.style.animationDuration = '5s';
+                    });
+                    setTimeout(() => {
+                        clickCount = 0;
+                        document.querySelectorAll('.floating-orb').forEach(orb => {
+                            orb.style.animationDuration = '';
+                        });
+                    }, 3000);
+                }
+            });
+
+            // Page visibility
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    calculate();
+                }
+            });
+        }
+
+        // Share function
+        function shareResults() {
+            const futureValue = document.getElementById('futureValue').textContent;
+            const text = `I just calculated my investment future! With compound interest, my investment could grow to ${futureValue}! Calculate yours at ${window.location.href}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Investment Growth Calculation',
+                    text: text
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Results copied to clipboard!');
+                });
+            }
+        }
+
+        // Initialize app
+        function initializeApp() {
+            setupEventListeners();
+            calculate(); // Initial calculation
+            console.log('Compound Interest Calculator initialized');
+        }
+
+        // Start app when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
         }
     </script>
 </body>
-
 </html>
-
