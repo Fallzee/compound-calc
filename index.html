@@ -688,6 +688,127 @@
             opacity: 1;
         }
     </style>
+    <!-- Add this CSS to your existing <style> section -->
+<style>
+.support-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd700, #f7931e, #ff6b35);
+    background-size: 400% 400%;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1rem;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    animation: gradientShift 3s ease infinite;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Soft rolling sheen effect */
+.support-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.15) 50%,
+        transparent 60%
+    );
+    transform: rotate(45deg);
+    animation: continuousSheen 3s linear infinite;
+}
+
+/* Gentle sparkle layer */
+.support-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 30%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 70%,
+        transparent 100%
+    );
+    animation: sparkleWave 2.5s ease-in-out infinite;
+    border-radius: 12px;
+}
+
+/* Background gradient animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Continuous rolling sheen */
+@keyframes continuousSheen {
+    0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+    100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+}
+
+/* Sparkle wave effect */
+@keyframes sparkleWave {
+    0%, 100% { transform: translateX(-100%); opacity: 0; }
+    50% { transform: translateX(100%); opacity: 1; }
+}
+
+/* Hover effects */
+.support-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 8px 25px rgba(255, 107, 53, 0.6),
+        0 0 30px rgba(255, 215, 0, 0.4);
+    animation-duration: 1.5s; /* Speed up on hover */
+}
+
+/* Active/click effect */
+.support-btn:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.8);
+}
+
+/* Pulsing glow effect */
+.support-btn {
+    animation: 
+        gradientShift 3s ease infinite,
+        pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { 
+        box-shadow: 
+            0 4px 15px rgba(255, 107, 53, 0.4),
+            0 0 20px rgba(255, 215, 0, 0.2);
+    }
+    50% { 
+        box-shadow: 
+            0 6px 20px rgba(255, 107, 53, 0.6),
+            0 0 30px rgba(255, 215, 0, 0.4);
+    }
+}
+</style>
+
+</a>
 </head>
 <body>
     <div class="background-animation">
@@ -769,6 +890,9 @@
                 <button class="reset-btn" onclick="resetToDefaults()">
                     Reset to Defaults
                 </button>
+                <a href="https://paypal.me/DavidErdahl" target="_blank" class="support-btn">
+                    ☕ Support the Creator!
+                </a>
             </div>
 
             <div class="results-panel">
@@ -1415,5 +1539,3 @@
     </script>
 </body>
 </html>
-
-
