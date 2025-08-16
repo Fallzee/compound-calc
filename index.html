@@ -647,20 +647,6 @@
             font-weight: bold;
         }
 
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .reset-btn {
             width: 100%;
             padding: 0.8rem;
@@ -687,855 +673,448 @@
         .tooltip.show {
             opacity: 1;
         }
-    </style>
-    <!-- Add this CSS to your existing <style> section -->
-<style>
-.support-btn {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd700, #f7931e, #ff6b35);
-    background-size: 400% 400%;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 1rem;
-    text-decoration: none;
-    display: block;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-    animation: gradientShift 3s ease infinite;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
 
-/* Soft rolling sheen effect */
-.support-btn::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 40%,
-        rgba(255, 255, 255, 0.15) 50%,
-        transparent 60%
-    );
-    transform: rotate(45deg);
-    animation: continuousSheen 3s linear infinite;
-}
-
-/* Gentle sparkle layer */
-.support-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 30%,
-        rgba(255, 255, 255, 0.2) 50%,
-        rgba(255, 255, 255, 0.1) 70%,
-        transparent 100%
-    );
-    animation: sparkleWave 2.5s ease-in-out infinite;
-    border-radius: 12px;
-}
-
-/* Background gradient animation */
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* Continuous rolling sheen */
-@keyframes continuousSheen {
-    0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
-    100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
-}
-
-/* Sparkle wave effect */
-@keyframes sparkleWave {
-    0%, 100% { transform: translateX(-100%); opacity: 0; }
-    50% { transform: translateX(100%); opacity: 1; }
-}
-
-/* Hover effects */
-.support-btn:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-        0 8px 25px rgba(255, 107, 53, 0.6),
-        0 0 30px rgba(255, 215, 0, 0.4);
-    animation-duration: 1.5s; /* Speed up on hover */
-}
-
-/* Active/click effect */
-.support-btn:active {
-    transform: translateY(-1px) scale(0.98);
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.8);
-}
-
-/* Pulsing glow effect */
-.support-btn {
-    animation: 
-        gradientShift 3s ease infinite,
-        pulseGlow 4s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { 
-        box-shadow: 
-            0 4px 15px rgba(255, 107, 53, 0.4),
-            0 0 20px rgba(255, 215, 0, 0.2);
-    }
-    50% { 
-        box-shadow: 
-            0 6px 20px rgba(255, 107, 53, 0.6),
-            0 0 30px rgba(255, 215, 0, 0.4);
-    }
-}
-</style>
-
-</a>
-</head>
-<body>
-    <div class="background-animation">
-        <div class="floating-orb orb1"></div>
-        <div class="floating-orb orb2"></div>
-        <div class="floating-orb orb3"></div>
-    </div>
-
-    <div class="container">
-        <header>
-            <h1>Compound Interest Calculator</h1>
-            <p class="subtitle">Watch your wealth grow exponentially over time ✨</p>
-        </header>
-
-        <div class="main-content">
-            <div class="input-panel">
-                <div class="input-group">
-                    <label for="initial">Initial Investment</label>
-                    <div class="number-input-wrapper">
-                        <input type="text" id="initial" value="10,000" min="0" step="100">
-                        <div class="number-controls">
-                            <button class="number-control" onclick="adjustValue('initial', 1000)">▲</button>
-                            <button class="number-control" onclick="adjustValue('initial', -1000)">▼</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="monthly">Monthly Contribution</label>
-                    <div class="number-input-wrapper">
-                        <input type="text" id="monthly" value="500" min="0" step="50">
-                        <div class="number-controls">
-                            <button class="number-control" onclick="adjustValue('monthly', 50)">▲</button>
-                            <button class="number-control" onclick="adjustValue('monthly', -50)">▼</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="years">Investment Period: <span id="yearsDisplay">25</span> years</label>
-                    <input type="range" id="years" min="1" max="50" value="25">
-                    <div class="range-labels">
-                        <span>1 year</span>
-                        <span>25 years</span>
-                        <span>50 years</span>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <div class="label-with-info">
-                        <label for="rate" style="margin-bottom: 0;">Annual Return Rate: <span id="rateDisplay">8</span>%</label>
-                        <div class="info-icon">
-                            i
-                            <div class="info-tooltip">8% is a conservative estimate for S&P 500 returns. The historical average is about 10%, but using a lower estimate helps account for inflation and market volatility.</div>
-                        </div>
-                    </div>
-                    <input type="range" id="rate" min="1" max="30" value="8" step="0.5">
-                    <div class="range-labels">
-                        <span>1%</span>
-                        <span>15%</span>
-                        <span>30%</span>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="compound">Compounding Frequency</label>
-                    <select id="compound">
-                        <option value="1" selected>Annually</option>
-                        <option value="4">Quarterly</option>
-                        <option value="12">Monthly</option>
-                        <option value="365">Daily</option>
-                    </select>
-                </div>
-
-                <button class="calculate-btn" onclick="calculate()">
-                    Calculate My Future Wealth
-                </button>
-
-                <button class="reset-btn" onclick="resetToDefaults()">
-                    Reset to Defaults
-                </button>
-                <a href="https://paypal.me/DavidErdahl" target="_blank" class="support-btn">
-                    ☕ Support the Creator!
-                </a>
-            </div>
-
-            <div class="results-panel">
-                <div class="result-card">
-                    <div class="result-label">Future Value</div>
-                    <div class="result-value" id="futureValue">$0</div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalContributions">$0</div>
-                        <div class="stat-label">Total Invested</div>
-                        <div class="stat-info">Initial investment + all monthly contributions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalInterest">$0</div>
-                        <div class="stat-label">Interest Earned</div>
-                        <div class="stat-info">The money your money made!</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="safeWithdrawal">$0/mo</div>
-                        <div class="stat-label">Safe Withdrawal</div>
-                        <div class="stat-info">4% rule: You can safely withdraw this much each month without depleting your portfolio</div>
-                    </div>
-                </div>
-
-                <div class="chart-toggle">
-                    <button class="toggle-btn active" onclick="switchChart('growth')">Growth Over Time</button>
-                    <button class="toggle-btn" onclick="switchChart('breakdown')">Contribution vs Interest</button>
-                </div>
-
-                <div id="chart-container">
-                    <canvas id="chart"></canvas>
-                </div>
-
-                <div class="insights" id="insights" style="display: none;">
-                    <div class="insight-title">💡 Key Insights</div>
-                    <div id="insightsList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" 
-            integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" 
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
-    <script>
-        // Global variables
-        let currentChart = null;
-        let chartType = 'growth';
-        let lastFutureValue = 0;
-        let clickCount = 0;
-
-        // Configuration
-        const config = {
-            maxValue: 999999999,
-            animationDuration: 1000,
-            defaultValues: {
-                initial: 10000,
-                monthly: 500,
-                years: 25,
-                rate: 8,
-                compound: 1
-            }
-        };
-
-        // Utility functions
-        function sanitizeNumber(value, min = 0, max = config.maxValue) {
-            if (typeof value === 'string') {
-                value = value.replace(/[^\d.-]/g, '');
-            }
-            const num = parseFloat(value) || 0;
-            return Math.max(min, Math.min(max, num));
+        .support-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd700, #f7931e, #ff6b35);
+            background-size: 400% 400%;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            animation: gradientShift 3s ease infinite;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        function formatCurrency(amount) {
-            try {
-                return new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                }).format(amount);
-            } catch (e) {
-                return '$' + Math.round(amount).toLocaleString();
+        /* Soft rolling sheen effect */
+        .support-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.15) 50%,
+                transparent 60%
+            );
+            transform: rotate(45deg);
+            animation: continuousSheen 3s linear infinite;
+        }
+
+        /* Gentle sparkle layer */
+        .support-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 30%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.1) 70%,
+                transparent 100%
+            );
+            animation: sparkleWave 2.5s ease-in-out infinite;
+            border-radius: 12px;
+        }
+
+        /* Background gradient animation */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Continuous rolling sheen */
+        @keyframes continuousSheen {
+            0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+            100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+        }
+
+        /* Sparkle wave effect */
+        @keyframes sparkleWave {
+            0%, 100% { transform: translateX(-100%); opacity: 0; }
+            50% { transform: translateX(100%); opacity: 1; }
+        }
+
+        /* Hover effects */
+        .support-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 8px 25px rgba(255, 107, 53, 0.6),
+                0 0 30px rgba(255, 215, 0, 0.4);
+            animation-duration: 1.5s; /* Speed up on hover */
+        }
+
+        /* Active/click effect */
+        .support-btn:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.8);
+        }
+
+        /* Pulsing glow effect */
+        .support-btn {
+            animation: 
+                gradientShift 3s ease infinite,
+                pulseGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 
+                    0 4px 15px rgba(255, 107, 53, 0.4),
+                    0 0 20px rgba(255, 215, 0, 0.2);
+            }
+            50% { 
+                box-shadow: 
+                    0 6px 20px rgba(255, 107, 53, 0.6),
+                    0 0 30px rgba(255, 215, 0, 0.4);
             }
         }
 
-        function formatNumber(num) {
-            if (num >= 1000000000) {
-                return '$' + (num / 1000000000).toFixed(1) + 'B';
-            } else if (num >= 1000000) {
-                return '$' + (num / 1000000).toFixed(1) + 'M';
-            } else if (num >= 1000) {
-                return '$' + (num / 1000).toFixed(1) + 'K';
-            }
-            return formatCurrency(num);
-        }
-
-        function formatMonthlyAmount(num) {
-            if (num >= 10000) {
-                return '$' + (num / 1000).toFixed(1) + 'K/mo';
-            }
-            return formatCurrency(num) + '/mo';
-        }
-
-        // Animation function
-        function animateValue(elementId, startValue, endValue, duration, formatter = formatNumber) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-
-            const startTime = performance.now();
-            const startNum = sanitizeNumber(startValue);
-            const endNum = sanitizeNumber(endValue);
-            const range = endNum - startNum;
-
-            function animate(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easedProgress = 1 - Math.pow(1 - progress, 3); // ease out cubic
-                const currentValue = startNum + (range * easedProgress);
-                
-                element.textContent = formatter(currentValue);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    element.textContent = formatter(endNum);
-                }
+        /* Old responsive rule to be replaced */
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
             }
             
-            requestAnimationFrame(animate);
-        }
-
-        // Calculation functions
-        function calculateCompoundInterest(principal, monthlyContribution, years, annualRate, compoundFrequency) {
-            try {
-                // Sanitize inputs
-                principal = sanitizeNumber(principal);
-                monthlyContribution = sanitizeNumber(monthlyContribution);
-                years = sanitizeNumber(years, 1, 100);
-                annualRate = sanitizeNumber(annualRate, 0.1, 50) / 100; // Convert to decimal
-                compoundFrequency = Math.max(1, Math.floor(compoundFrequency));
-
-                // Calculate compound interest for principal
-                const periodicRate = annualRate / compoundFrequency;
-                const totalPeriods = years * compoundFrequency;
-                
-                // Future value of initial principal
-                const futureValuePrincipal = principal * Math.pow(1 + periodicRate, totalPeriods);
-                
-                // Future value of monthly contributions
-                let futureValueContributions = 0;
-                const monthsTotal = years * 12;
-                
-                // Calculate each monthly contribution's compound growth
-                for (let month = 1; month <= monthsTotal; month++) {
-                    const monthsRemaining = monthsTotal - month + 1;
-                    const periodsRemaining = (monthsRemaining / 12) * compoundFrequency;
-                    futureValueContributions += monthlyContribution * Math.pow(1 + periodicRate, periodsRemaining);
-                }
-                
-                const totalFutureValue = futureValuePrincipal + futureValueContributions;
-                const totalContributed = principal + (monthlyContribution * monthsTotal);
-                const totalInterest = totalFutureValue - totalContributed;
-                
-                // Safe withdrawal (4% rule)
-                const annualSafeWithdrawal = totalFutureValue * 0.04;
-                const monthlySafeWithdrawal = annualSafeWithdrawal / 12;
-                
-                return {
-                    futureValue: totalFutureValue,
-                    totalContributed,
-                    totalInterest,
-                    monthlySafeWithdrawal
-                };
-            } catch (error) {
-                console.error('Calculation error:', error);
-                return {
-                    futureValue: 0,
-                    totalContributed: 0,
-                    totalInterest: 0,
-                    monthlySafeWithdrawal: 0
-                };
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        // Input handling functions
-        function adjustValue(inputId, change) {
-            const input = document.getElementById(inputId);
-            if (!input) return;
-
-            const currentValue = sanitizeNumber(input.value.replace(/,/g, ''));
-            const newValue = Math.max(0, currentValue + change);
-            input.value = newValue.toLocaleString();
-            calculate();
-        }
-
-        function getInputValues() {
-            return {
-                principal: sanitizeNumber(document.getElementById('initial').value.replace(/,/g, '')),
-                monthlyContribution: sanitizeNumber(document.getElementById('monthly').value.replace(/,/g, '')),
-                years: sanitizeNumber(document.getElementById('years').value, 1, 100),
-                annualRate: sanitizeNumber(document.getElementById('rate').value, 0.1, 50),
-                compoundFrequency: parseInt(document.getElementById('compound').value) || 1
-            };
-        }
-
-        // Chart functions
-        function generateChartData(principal, monthlyContribution, years, annualRate, compoundFrequency) {
-            const labels = [];
-            const principalData = [];
-            const interestData = [];
-            const totalData = [];
-            
-            for (let year = 0; year <= years; year++) {
-                labels.push(`Year ${year}`);
-                
-                if (year === 0) {
-                    principalData.push(principal);
-                    interestData.push(0);
-                    totalData.push(principal);
-                } else {
-                    const result = calculateCompoundInterest(
-                        principal, monthlyContribution, year, annualRate, compoundFrequency
-                    );
-                    
-                    principalData.push(result.totalContributed);
-                    interestData.push(result.totalInterest);
-                    totalData.push(result.futureValue);
-                }
+        /* ============================================ */
+        /* MOBILE RESPONSIVE FIXES - DO NOT ALTER DESKTOP */
+        /* ============================================ */
+        
+        @media (max-width: 768px) {
+            /* Fix body scrolling and viewport */
+            body {
+                min-height: 100vh;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
-            return { labels, principalData, interestData, totalData };
+            /* Ensure container allows proper scrolling */
+            .container {
+                padding: 1rem;
+                padding-bottom: 3rem; /* Extra padding at bottom */
+                min-height: 100vh;
+            }
+            
+            /* Adjust header spacing */
+            header {
+                margin-bottom: 2rem;
+                padding-top: 1rem;
+            }
+            
+            /* Scale down title for mobile */
+            h1 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+            
+            /* Stack main content vertically */
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-bottom: 3rem; /* Extra bottom margin */
+            }
+            
+            /* Adjust panel padding for mobile */
+            .input-panel, .results-panel {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+            
+            /* Increase spacing between input groups */
+            .input-group {
+                margin-bottom: 2.5rem;
+            }
+            
+            /* Larger touch targets for inputs */
+            input[type="text"], 
+            input[type="number"], 
+            select {
+                padding: 1.2rem 1rem;
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 50px;
+            }
+            
+            /* Adjust number controls for better touch */
+            .number-control {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            
+            .number-controls {
+                gap: 4px;
+            }
+            
+            /* Larger range slider thumb for mobile */
+            input[type="range"]::-webkit-slider-thumb {
+                width: 44px;
+                height: 44px;
+            }
+            
+            input[type="range"] {
+                height: 10px;
+                margin-top: 1rem;
+            }
+            
+            /* Adjust button sizes for better touch */
+            .calculate-btn {
+                padding: 1.5rem;
+                font-size: 1.1rem;
+                min-height: 60px;
+            }
+            
+            .reset-btn, .support-btn {
+                padding: 1.3rem;
+                min-height: 55px;
+            }
+            
+            /* Fix info tooltip position on mobile */
+            .info-tooltip {
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: auto;
+                top: 50%;
+                margin-top: -50px;
+                max-width: 90vw;
+                min-width: 250px;
+            }
+            
+            /* Larger info icon for mobile */
+            .info-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            
+            /* Stack stats grid vertically */
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-bottom: 2.5rem;
+            }
+            
+            /* Larger stat cards for mobile */
+            .stat-card {
+                padding: 1.5rem;
+                min-height: 80px;
+            }
+            
+            /* Fix stat info positioning */
+            .stat-info {
+                position: static;
+                margin-top: 1rem;
+                border-radius: 12px;
+                display: none;
+            }
+            
+            .stat-card:hover .stat-info,
+            .stat-card:active .stat-info {
+                display: block;
+                opacity: 1;
+                max-height: none;
+                padding: 1rem;
+            }
+            
+            /* Chart adjustments */
+            #chart-container {
+                height: 300px;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            /* Stack chart toggle buttons on small screens */
+            .chart-toggle {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .toggle-btn {
+                flex: 1;
+                min-width: 120px;
+                padding: 0.8rem 1rem;
+                min-height: 48px;
+            }
+            
+            /* Result card adjustments */
+            .result-card {
+                padding: 1.2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+                word-break: break-word;
+            }
+            
+            /* Insights section spacing */
+            .insights {
+                padding: 1.2rem;
+                margin-top: 1.5rem;
+            }
+            
+            .insight-item {
+                margin-bottom: 1rem;
+                line-height: 1.4;
+            }
+            
+            /* Reduce floating orb sizes on mobile to improve performance */
+            .orb1 {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .orb2 {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .orb3 {
+                width: 150px;
+                height: 150px;
+            }
+            
+            /* Ensure proper z-index stacking */
+            .background-animation {
+                z-index: -1;
+            }
+            
+            /* Fix any potential overflow issues */
+            .main-content {
+                overflow: visible;
+            }
+            
+            /* Additional spacing for last element */
+            .input-panel > *:last-child {
+                margin-bottom: 0;
+            }
+            
+            /* Ensure labels are readable */
+            label {
+                font-size: 1rem;
+                margin-bottom: 0.7rem;
+            }
+            
+            /* Range labels adjustment */
+            .range-labels {
+                font-size: 0.75rem;
+                margin-top: 0.7rem;
+            }
+            
+            /* Prevent horizontal scroll from wide content */
+            * {
+                max-width: 100%;
+            }
+            
+            /* Fix potential button overflow */
+            button {
+                max-width: 100%;
+                overflow: hidden;
+            }
         }
-
-        function updateChart(chartData) {
-            const ctx = document.getElementById('chart');
-            if (!ctx) return;
-
-            // Destroy existing chart
-            if (currentChart) {
-                currentChart.destroy();
-                currentChart = null;
+        
+        /* Extra small devices (phones in portrait) */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.75rem;
             }
-
-            const datasets = chartType === 'growth' ? [{
-                label: 'Total Value',
-                data: chartData.totalData,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#10b981',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-            }] : [
-                {
-                    label: 'Principal',
-                    data: chartData.principalData,
-                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                    borderColor: '#3b82f6',
-                    borderWidth: 2,
-                },
-                {
-                    label: 'Interest',
-                    data: chartData.interestData,
-                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                    borderColor: '#10b981',
-                    borderWidth: 2,
-                }
-            ];
-
-            currentChart = new Chart(ctx.getContext('2d'), {
-                type: chartType === 'growth' ? 'line' : 'bar',
-                data: {
-                    labels: chartData.labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                color: '#e2e8f0',
-                                font: { size: 12, weight: 600 },
-                                padding: 20
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
-                            titleColor: '#e2e8f0',
-                            bodyColor: '#94a3b8',
-                            borderColor: '#10b981',
-                            borderWidth: 1,
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 11 }
-                            }
-                        },
-                        y: {
-                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 13, weight: 500 },
-                                callback: function(value) {
-                                    return formatNumber(value);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            
+            .container {
+                padding: 0.75rem;
+                padding-bottom: 4rem;
+            }
+            
+            .input-panel, .results-panel {
+                padding: 1.25rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .result-value {
+                font-size: 1.75rem;
+            }
+            
+            /* Stack toggle buttons vertically on very small screens */
+            .chart-toggle {
+                flex-direction: column;
+            }
+            
+            .toggle-btn {
+                width: 100%;
+            }
         }
-
-        function switchChart(type) {
-            chartType = type;
+        
+        /* Landscape orientation fixes */
+        @media (max-width: 768px) and (orientation: landscape) {
+            header {
+                margin-bottom: 1.5rem;
+            }
             
-            // Update button states
-            document.querySelectorAll('.toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            h1 {
+                font-size: 2rem;
+            }
             
-            calculate();
+            .input-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            #chart-container {
+                height: 250px;
+            }
         }
-
-        // Insights functions
-        function generateInsights(result, inputs) {
-            const insights = [];
-            
-            // Doubling time
-            const doublingYears = Math.log(2) / Math.log(1 + inputs.annualRate / 100);
-            if (doublingYears < 50) {
-                insights.push(`💰 Your money will double every ${doublingYears.toFixed(1)} years at this rate`);
-            }
-            
-            // Growth vs contributions
-            if (result.totalInterest > result.totalContributed) {
-                const growthRatio = (result.totalInterest / result.totalContributed * 100).toFixed(0);
-                insights.push(`🚀 Your interest (${growthRatio}% return) will exceed your contributions!`);
-            }
-            
-            // Safe withdrawal
-            if (result.monthlySafeWithdrawal > 500) {
-                insights.push(`🏖️ You could safely withdraw ${formatCurrency(result.monthlySafeWithdrawal)}/month using the 4% rule`);
-            }
-            
-            // Millionaire milestone
-            if (result.futureValue < 1000000 && result.futureValue > 100000) {
-                let yearsToMillion = inputs.years;
-                let testValue = result.futureValue;
-                
-                while (testValue < 1000000 && yearsToMillion < 50) {
-                    yearsToMillion++;
-                    const testResult = calculateCompoundInterest(
-                        inputs.principal, inputs.monthlyContribution, yearsToMillion, inputs.annualRate, inputs.compoundFrequency
-                    );
-                    testValue = testResult.futureValue;
+        
+        /* iOS specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            @media (max-width: 768px) {
+                /* Fix iOS input zoom */
+                input[type="text"],
+                input[type="number"],
+                select {
+                    font-size: 16px !important;
                 }
                 
-                if (yearsToMillion < 50) {
-                    const additionalYears = yearsToMillion - inputs.years;
-                    if (additionalYears > 0) {
-                        insights.push(`🎯 Continue for ${additionalYears} more years to reach $1 million`);
-                    }
-                }
-            }
-            
-            return insights;
-        }
-
-        function updateInsights(insights) {
-            const insightsContainer = document.getElementById('insights');
-            const insightsList = document.getElementById('insightsList');
-            
-            if (insights.length > 0) {
-                insightsContainer.style.display = 'block';
-                insightsList.innerHTML = insights.map(insight => 
-                    `<div class="insight-item">${insight}</div>`
-                ).join('');
-            } else {
-                insightsContainer.style.display = 'none';
-            }
-        }
-
-        // Effects functions
-        function createConfetti() {
-            const colors = ['#10b981', '#059669', '#14b8a6', '#f59e0b'];
-            
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.cssText = `
-                    position: fixed;
-                    width: 10px;
-                    height: 10px;
-                    background-color: ${colors[Math.floor(Math.random() * colors.length)]};
-                    left: ${Math.random() * 100}%;
-                    top: -10px;
-                    opacity: ${Math.random() + 0.5};
-                    transform: rotate(${Math.random() * 360}deg);
-                    transition: all 3s ease-out;
-                    pointer-events: none;
-                    z-index: 10000;
-                `;
-                
-                document.body.appendChild(confetti);
-                
-                // Animate
-                setTimeout(() => {
-                    confetti.style.top = '100%';
-                    confetti.style.transform = `rotate(${Math.random() * 720}deg) translateX(${Math.random() * 200 - 100}px)`;
-                    confetti.style.opacity = '0';
-                }, 100);
-                
-                // Remove
-                setTimeout(() => {
-                    if (confetti.parentNode) {
-                        confetti.parentNode.removeChild(confetti);
-                    }
-                }, 3100);
-            }
-        }
-
-        function checkMilestones(currentValue, previousValue) {
-            const milestones = [100000, 250000, 500000, 1000000, 5000000, 10000000];
-            
-            for (const milestone of milestones) {
-                if (previousValue < milestone && currentValue >= milestone) {
-                    createConfetti();
-                    
-                    if (milestone === 1000000) {
-                        const resultElement = document.getElementById('futureValue');
-                        if (resultElement) {
-                            resultElement.style.animation = 'glow 2s ease-in-out 3';
-                            setTimeout(() => {
-                                resultElement.style.animation = '';
-                            }, 6000);
-                        }
-                    }
-                    break;
+                /* Fix iOS bounce scroll */
+                .container {
+                    -webkit-overflow-scrolling: touch;
                 }
             }
         }
-
-        // Main calculation function
-        function calculate() {
-            try {
-                const inputs = getInputValues();
-                const result = calculateCompoundInterest(
-                    inputs.principal,
-                    inputs.monthlyContribution,
-                    inputs.years,
-                    inputs.annualRate,
-                    inputs.compoundFrequency
-                );
-
-                // Animate results
-                animateValue('futureValue', 0, result.futureValue, config.animationDuration);
-                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8);
-                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
-                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
-
-                // Update chart
-                setTimeout(() => {
-                    const chartData = generateChartData(
-                        inputs.principal,
-                        inputs.monthlyContribution,
-                        inputs.years,
-                        inputs.annualRate,
-                        inputs.compoundFrequency
-                    );
-                    updateChart(chartData);
-                }, 100);
-
-                // Generate insights
-                const insights = generateInsights(result, inputs);
-                updateInsights(insights);
-
-                // Check milestones
-                checkMilestones(result.futureValue, lastFutureValue);
-                lastFutureValue = result.futureValue;
-
-                // Trigger result animation
-                const resultValue = document.getElementById('futureValue');
-                if (resultValue) {
-                    resultValue.style.animation = 'none';
-                    setTimeout(() => {
-                        resultValue.style.animation = 'countUp 0.8s ease-out';
-                    }, 10);
-                }
-            } catch (error) {
-                console.error('Calculation error:', error);
-            }
-        }
-
-        // Reset function
-        function resetToDefaults() {
-            const defaults = config.defaultValues;
-            
-            document.getElementById('initial').value = defaults.initial.toLocaleString();
-            document.getElementById('monthly').value = defaults.monthly.toLocaleString();
-            document.getElementById('years').value = defaults.years;
-            document.getElementById('rate').value = defaults.rate;
-            document.getElementById('compound').value = defaults.compound;
-            
-            document.getElementById('yearsDisplay').textContent = defaults.years;
-            document.getElementById('rateDisplay').textContent = defaults.rate;
-            
-            lastFutureValue = 0;
-            calculate();
-        }
-
-        // Event listeners setup
-        function setupEventListeners() {
-            // Slider displays
-            document.getElementById('years').addEventListener('input', (e) => {
-                document.getElementById('yearsDisplay').textContent = e.target.value;
-                calculate();
-            });
-
-            document.getElementById('rate').addEventListener('input', (e) => {
-                document.getElementById('rateDisplay').textContent = e.target.value;
-                calculate();
-            });
-
-            // Auto-calculate on input change
-            ['initial', 'monthly', 'compound'].forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', calculate);
-                }
-            });
-
-            // Number input formatting
-            ['initial', 'monthly'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('input', function() {
-                        let value = this.value.replace(/[^\d]/g, '');
-                        if (value) {
-                            const numValue = parseInt(value);
-                            this.value = numValue.toLocaleString();
-                        }
-                    });
-
-                    input.addEventListener('blur', function() {
-                        const value = sanitizeNumber(this.value.replace(/,/g, ''));
-                        this.value = value.toLocaleString();
-                        calculate();
-                    });
-                }
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    if (document.activeElement) {
-                        document.activeElement.blur();
-                    }
-                    calculate();
-                }
-            });
-
-            // Easter egg
-            document.querySelector('h1').addEventListener('click', function() {
-                clickCount++;
-                if (clickCount === 5) {
-                    this.style.animation = 'glow 0.5s ease-in-out 3';
-                    document.querySelectorAll('.floating-orb').forEach(orb => {
-                        orb.style.animationDuration = '5s';
-                    });
-                    setTimeout(() => {
-                        clickCount = 0;
-                        document.querySelectorAll('.floating-orb').forEach(orb => {
-                            orb.style.animationDuration = '';
-                        });
-                    }, 3000);
-                }
-            });
-
-            // Page visibility
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    calculate();
-                }
-            });
-        }
-
-        // Share function
-        function shareResults() {
-            const futureValue = document.getElementById('futureValue').textContent;
-            const text = `I just calculated my investment future! With compound interest, my investment could grow to ${futureValue}! Calculate yours at ${window.location.href}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Investment Growth Calculation',
-                    text: text
-                });
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    console.log('Results copied to clipboard!');
-                });
-            }
-        }
-
-        // Initialize app
-        function initializeApp() {
-            setupEventListeners();
-            calculate(); // Initial calculation
-            console.log('Compound Interest Calculator initialized');
-        }
-
-        // Start app when DOM is loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
-    </script>
-</body>
-</html>
