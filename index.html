@@ -738,9 +738,20 @@
             }
             
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                display: flex;
                 gap: 0.75rem;
                 margin-bottom: 1.5rem;
+            }
+            
+            .stat-card:nth-child(1),
+            .stat-card:nth-child(2) {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .stat-card:nth-child(3) {
+                flex: 1.5;
+                min-width: 0;
             }
             
             .stat-card {
@@ -756,7 +767,9 @@
             }
             
             .result-value {
-                font-size: 2rem;
+                font-size: 2.8rem;
+                font-weight: 900;
+                line-height: 1;
             }
             
             .reset-btn {
@@ -776,8 +789,8 @@
             }
             
             #chart-container {
-                height: 300px;
-                padding: 1rem;
+                height: 350px;
+                padding: 0.75rem;
             }
             
             .chart-toggle {
@@ -1107,7 +1120,12 @@
             } else if (num >= 1000000) {
                 return '$' + (num / 1000000).toFixed(1) + 'M';
             } else if (num >= 1000) {
-                return '$' + (num / 1000).toFixed(1) + 'K';
+                const thousands = num / 1000;
+                if (thousands % 1 === 0) {
+                    return '$' + thousands.toFixed(0) + 'K';
+                } else {
+                    return '$' + thousands.toFixed(1) + 'K';
+                }
             }
             return formatCurrency(num);
         }
@@ -1298,6 +1316,14 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onHover: function(event, activeElements) {
+                        if (window.innerWidth <= 968 && activeElements.length > 0) {
+                            event.native.preventDefault();
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    },
                     interaction: {
                         mode: 'index',
                         intersect: false,
@@ -1349,6 +1375,25 @@
                     }
                 }
             });
+        }
+
+        function addChartTouchHandlers() {
+            const chartContainer = document.getElementById('chart-container');
+            if (chartContainer && window.innerWidth <= 968) {
+                chartContainer.addEventListener('touchstart', function(e) {
+                    document.body.style.overflow = 'hidden';
+                }, { passive: false });
+                
+                chartContainer.addEventListener('touchend', function(e) {
+                    setTimeout(() => {
+                        document.body.style.overflow = '';
+                    }, 100);
+                }, { passive: false });
+                
+                chartContainer.addEventListener('touchmove', function(e) {
+                    e.stopPropagation();
+                }, { passive: false });
+            }
         }
 
         function switchChart(type) {
@@ -1536,6 +1581,7 @@
                         inputs.compoundFrequency
                     );
                     updateChart(chartData);
+                    addChartTouchHandlers();
                 }, 100);
 
                 // Generate insights
