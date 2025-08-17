@@ -499,6 +499,14 @@
             100% { transform: translateX(100%); }
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .results-panel {
+            scroll-margin-top: 1rem;
+        }
+
         .result-label {
             color: var(--text-dim);
             font-size: 0.9rem;
@@ -758,6 +766,24 @@
                 font-size: 0.9rem;
                 margin-bottom: 0.6rem;
             }
+
+            .calculate-btn {
+                position: relative;
+            }
+            
+            .calculate-btn:active {
+                transform: translateY(-1px);
+            }
+            
+            .results-panel {
+                border: 2px solid transparent;
+                transition: border-color 0.3s ease;
+            }
+            
+            .results-panel.highlight {
+                border-color: var(--primary);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            }
         }
 
         @media (max-width: 480px) {
@@ -932,7 +958,7 @@
                     </select>
                 </div>
 
-                <button class="calculate-btn" onclick="calculate()">
+                <button class="calculate-btn" onclick="calculate(event)">
                     Calculate My Future Wealth
                 </button>
 
@@ -1412,8 +1438,30 @@
             }
         }
 
+        // Helper function for mobile scroll and highlight
+        function scrollToResultsWithHighlight() {
+            const resultsPanel = document.querySelector('.results-panel');
+            if (resultsPanel && window.innerWidth <= 968) {
+                // Add highlight effect
+                resultsPanel.classList.add('highlight');
+                
+                // Scroll to results
+                setTimeout(() => {
+                    resultsPanel.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 200);
+                
+                // Remove highlight after animation
+                setTimeout(() => {
+                    resultsPanel.classList.remove('highlight');
+                }, 2000);
+            }
+        }
+
         // Main calculation function
-        function calculate() {
+        function calculate(event) {
             try {
                 const inputs = getInputValues();
                 const result = calculateCompoundInterest(
@@ -1429,6 +1477,11 @@
                 animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8);
                 animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
                 animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
+
+                // Scroll to results on mobile when calculate button is clicked
+                if (event && event.target && event.target.classList.contains('calculate-btn')) {
+                    scrollToResultsWithHighlight();
+                }
 
                 // Update chart
                 setTimeout(() => {
