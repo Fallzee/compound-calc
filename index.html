@@ -1576,20 +1576,17 @@
         }
 
         function checkMilestones(currentValue, previousValue) {
-            const milestones = [100000, 250000, 500000, 1000000, 5000000, 10000000];
+            const milestones = [1000000, 5000000, 10000000];
             
             for (const milestone of milestones) {
-                if (previousValue < milestone && currentValue >= milestone) {
-                    createConfetti();
-                    
-                    if (milestone === 1000000) {
-                        const resultElement = document.getElementById('futureValue');
-                        if (resultElement) {
-                            resultElement.style.animation = 'glow 2s ease-in-out 3';
-                            setTimeout(() => {
-                                resultElement.style.animation = '';
-                            }, 6000);
-                        }
+                if (previousValue < milestone && currentValue >= milestone && milestone === 1000000) {
+                    // Only special glow effect for $1M milestone, no confetti
+                    const resultElement = document.getElementById('futureValue');
+                    if (resultElement) {
+                        resultElement.style.animation = 'glow 2s ease-in-out 3';
+                        setTimeout(() => {
+                            resultElement.style.animation = '';
+                        }, 6000);
                     }
                     break;
                 }
@@ -1636,8 +1633,9 @@
                 animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
                 animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
 
-                // Scroll to results on mobile when calculate button is clicked
+                // Trigger confetti when calculate button is clicked
                 if (event && event.target && event.target.classList.contains('calculate-btn')) {
+                    createConfetti();
                     scrollToResultsWithHighlight();
                 }
 
@@ -1689,6 +1687,7 @@
             document.getElementById('rateDisplay').textContent = defaults.rate;
             
             lastFutureValue = 0;
+            createConfetti(); // Add confetti for reset
             calculate();
         }
 
@@ -1806,6 +1805,7 @@
         // Initialize app
         function initializeApp() {
             setupEventListeners();
+            createConfetti(); // Welcome confetti on page load
             calculate(); // Initial calculation
             console.log('Compound Interest Calculator initialized');
         }
