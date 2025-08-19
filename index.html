@@ -1252,15 +1252,18 @@
                 // Future value of initial principal
                 const futureValuePrincipal = principal * Math.pow(1 + periodicRate, totalPeriods);
                 
-               // Future value of monthly contributions (should compound monthly regardless of principal compounding)
+               // Future value of monthly contributions using the same compounding frequency
                 let futureValueContributions = 0;
                 const monthsTotal = years * 12;
-                const monthlyRate = annualRate / 12;
-
-                // Calculate each monthly contribution's compound growth using monthly compounding
+                
+                // Calculate each monthly contribution's compound growth
                 for (let month = 1; month <= monthsTotal; month++) {
-                    const monthsRemaining = monthsTotal - month + 1;
-                    futureValueContributions += monthlyContribution * Math.pow(1 + monthlyRate, monthsRemaining);
+                    // Time remaining for this contribution to compound (in years)
+                    const yearsRemaining = (monthsTotal - month + 1) / 12;
+                    // Total compounding periods for this contribution
+                    const periodsRemaining = yearsRemaining * compoundFrequency;
+                    // Future value of this single contribution
+                    futureValueContributions += monthlyContribution * Math.pow(1 + periodicRate, periodsRemaining);
                 }
                 
                 const totalFutureValue = futureValuePrincipal + futureValueContributions;
