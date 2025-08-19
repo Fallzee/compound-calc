@@ -1149,6 +1149,57 @@
         let lastFutureValue = 0;
         let clickCount = 0;
 
+        // Debouncing variables
+        let calculationTimeout = null;
+        let isCalculating = false;
+        
+        // Debounced calculation function
+        function debouncedCalculate(delay = 300) {
+            // Clear any existing timeout
+            if (calculationTimeout) {
+                clearTimeout(calculationTimeout);
+            }
+            
+            // Set new timeout
+            calculationTimeout = setTimeout(() => {
+                calculate();
+            }, delay);
+        }
+        
+        // Immediate calculation (for buttons/dropdowns)
+        function immediateCalculate() {
+            if (calculationTimeout) {
+                clearTimeout(calculationTimeout);
+                calculationTimeout = null;
+            }
+            calculate();
+        }
+        
+        // Show loading state
+        function showCalculatingState() {
+            if (isCalculating) return;
+            isCalculating = true;
+            
+            const futureValue = document.getElementById('futureValue');
+            if (futureValue && !futureValue.textContent.includes('...')) {
+                // Only show loading if calculation takes longer than 100ms
+                setTimeout(() => {
+                    if (isCalculating) {
+                        futureValue.style.opacity = '0.6';
+                    }
+                }, 100);
+            }
+        }
+        
+        // Hide loading state
+        function hideCalculatingState() {
+            isCalculating = false;
+            const futureValue = document.getElementById('futureValue');
+            if (futureValue) {
+                futureValue.style.opacity = '1';
+            }
+        }
+
         // Configuration
         const config = {
             maxValue: 999999999,
@@ -1164,10 +1215,59 @@
 
         // Utility functions
         function sanitizeNumber(value, min = 0, max = config.maxValue) {
-            if (typeof value === 'string') {
-                value = value.replace(/[^\d.-]/g, '');
+            if (value === null || value === undefined || value === '') {
+                return 0;
             }
-            const num = parseFloat(value) || 0;
+            
+            // Convert to string for processing
+            let str = String(value);
+            
+            // Handle European number format (10.000,50 -> 10000.50)
+            if (str.includes(',') && str.includes('.')) {
+                const lastComma = str.lastIndexOf(',');
+                const lastDot = str.lastIndexOf('.');
+                if (lastComma > lastDot) {
+                    // European format: 1.234.567,89
+                    str = str.replace(/\./g, '').replace(',', '.');
+                }
+            } else if (str.includes(',') && !str.includes('.')) {
+                // Check if comma is likely decimal separator
+                const commaIndex = str.lastIndexOf(',');
+                const afterComma = str.substring(commaIndex + 1);
+                if (afterComma.length <= 2 && /^\d+$/.test(afterComma)) {
+                    // Likely decimal: 1000,50
+                    str = str.replace(',', '.');
+                } else {
+                    // Likely thousands separator: 1,000
+                    str = str.replace(/,/g, '');
+                }
+            }
+            
+            // Remove all non-numeric characters except decimal point and minus
+            str = str.replace(/[^\d.-]/g, '');
+            
+            // Handle multiple decimal points (keep only the last one)
+            const parts = str.split('.');
+            if (parts.length > 2) {
+                str = parts.slice(0, -1).join('') + '.' + parts[parts.length - 1];
+            }
+            
+            // Handle multiple minus signs (keep only first one, only if at start)
+            if (str.includes('-')) {
+                const isNegative = str.indexOf('-') === 0;
+                str = str.replace(/-/g, '');
+                if (isNegative) str = '-' + str;
+            }
+            
+            // Parse the cleaned string
+            const num = parseFloat(str);
+            
+            // Check for invalid numbers
+            if (isNaN(num) || !isFinite(num)) {
+                return 0;
+            }
+            
+            // Apply min/max constraints
             return Math.max(min, Math.min(max, num));
         }
 
@@ -1620,6 +1720,8 @@
 
         // Main calculation function
         function calculate(event) {
+            showCalculatingState();
+            
             try {
                 const inputs = getInputValues();
                 const result = calculateCompoundInterest(
@@ -1673,6 +1775,8 @@
                 }
             } catch (error) {
                 console.error('Calculation error:', error);
+            } finally {
+                hideCalculatingState();
             }
         }
 
@@ -1696,24 +1800,30 @@
 
         // Event listeners setup
         function setupEventListeners() {
-            // Slider displays
+            // Slider displays with debouncing
             document.getElementById('years').addEventListener('input', (e) => {
                 document.getElementById('yearsDisplay').textContent = e.target.value;
-                calculate();
+                debouncedCalculate(150); // Shorter delay for sliders
             });
 
             document.getElementById('rate').addEventListener('input', (e) => {
                 document.getElementById('rateDisplay').textContent = e.target.value;
-                calculate();
+                debouncedCalculate(150); // Shorter delay for sliders
             });
 
-            // Auto-calculate on input change
-            ['initial', 'monthly', 'compound'].forEach(id => {
+            // Auto-calculate with debouncing for text inputs
+            ['initial', 'monthly'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.addEventListener('input', calculate);
+                    element.addEventListener('input', () => debouncedCalculate(300));
                 }
             });
+            
+            // Immediate calculation for dropdown changes
+            const compoundElement = document.getElementById('compound');
+            if (compoundElement) {
+                compoundElement.addEventListener('change', immediateCalculate);
+            }
 
             // Click-to-clear functionality for mobile
             ['initial', 'monthly'].forEach(id => {
