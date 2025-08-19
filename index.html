@@ -1342,38 +1342,36 @@
                 principal = sanitizeNumber(principal);
                 monthlyContribution = sanitizeNumber(monthlyContribution);
                 years = sanitizeNumber(years, 1, 100);
-                annualRate = sanitizeNumber(annualRate, 0.1, 50) / 100; // Convert to decimal
+                annualRate = sanitizeNumber(annualRate, 0, 50) / 100; // Allow zero rate, convert to decimal
                 compoundFrequency = Math.max(1, Math.floor(compoundFrequency));
 
-                // Calculate compound interest for principal
+                // Calculate periodic interest rate and total periods
                 const periodicRate = annualRate / compoundFrequency;
                 const totalPeriods = years * compoundFrequency;
-                
-                // Future value of initial principal
                 const futureValuePrincipal = principal * Math.pow(1 + periodicRate, totalPeriods);
-                
-               // Future value of monthly contributions using the same compounding frequency
+
+                // Closed-form FV of monthly contributions (ordinary annuity)
                 let futureValueContributions = 0;
-                const monthsTotal = years * 12;
-                
-                // Calculate each monthly contribution's compound growth
-                for (let month = 1; month <= monthsTotal; month++) {
-                    // Time remaining for this contribution to compound (in years)
-                    const yearsRemaining = (monthsTotal - month + 1) / 12;
-                    // Total compounding periods for this contribution
-                    const periodsRemaining = yearsRemaining * compoundFrequency;
-                    // Future value of this single contribution
-                    futureValueContributions += monthlyContribution * Math.pow(1 + periodicRate, periodsRemaining);
+                if (monthlyContribution > 0) {
+                    const months = years * 12;
+                    if (annualRate > 0) {
+                        // Monthly growth factor under chosen compounding
+                        const monthlyGrowthFactor = Math.pow(1 + periodicRate, compoundFrequency / 12);
+                        // Use log1p/expm1 for numerical stability: (g^months - 1) / (g - 1)
+                        const numerator = Math.expm1(months * Math.log(monthlyGrowthFactor));
+                        const denominator = Math.expm1(Math.log(monthlyGrowthFactor));
+                        futureValueContributions = monthlyContribution * (numerator / denominator);
+                    } else {
+                        // Zero rate: just sum the contributions
+                        futureValueContributions = monthlyContribution * months;
+                    }
                 }
-                
+
                 const totalFutureValue = futureValuePrincipal + futureValueContributions;
-                const totalContributed = principal + (monthlyContribution * monthsTotal);
+                const totalContributed = principal + (monthlyContribution * years * 12);
                 const totalInterest = totalFutureValue - totalContributed;
-                
-                // Safe withdrawal (4% rule)
-                const annualSafeWithdrawal = totalFutureValue * 0.04;
-                const monthlySafeWithdrawal = annualSafeWithdrawal / 12;
-                
+                const monthlySafeWithdrawal = (totalFutureValue * 0.04) / 12;
+
                 return {
                     futureValue: totalFutureValue,
                     totalContributed,
