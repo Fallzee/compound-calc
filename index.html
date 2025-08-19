@@ -1010,117 +1010,56 @@
             opacity: 1;
         }
 
-        /* Disclaimer - Subtle Info Bar */
+        /* Disclaimer - Footer Section */
         .disclaimer-section {
-          position: fixed; bottom: 0; left: 0; right: 0;
-          background: rgba(30, 41, 59, 0.95);
-          backdrop-filter: blur(8px);
+          background: var(--surface);
           border-top: 1px solid rgba(255,255,255,0.1);
           color: var(--text-dim);
-          z-index: 999;
-          font-size: 0.8rem;
-          transition: all 0.3s ease;
+          margin-top: 3rem;
+          padding: 2rem 0;
         }
 
-        .disclaimer-compact {
-          max-width: 1400px; margin: 0 auto; padding: 0.5rem 1rem;
-          display: flex; align-items: center; gap: 0.75rem; justify-content: center;
+        .disclaimer-container {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 2rem;
           text-align: center;
         }
 
-        .disclaimer-info-text {
-          color: var(--text-dim); font-size: 0.8rem;
+        .disclaimer-text {
+          color: var(--text-dim);
+          font-size: 0.9rem;
+          line-height: 1.6;
+          margin-bottom: 0.5rem;
+        }
+
+        .disclaimer-text strong {
+          color: var(--text);
+        }
+
+        .disclaimer-note {
+          color: var(--text-dim);
+          font-size: 0.8rem;
+          font-style: italic;
           opacity: 0.8;
-        }
-
-        .disclaimer-link {
-          color: var(--primary); text-decoration: underline;
-          cursor: pointer; font-weight: 500;
-          transition: all 0.3s ease;
-        }
-
-        .disclaimer-link:hover {
-          color: var(--primary-light);
-        }
-
-        .disclaimer-full {
-          position: fixed; top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-          background: var(--surface);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 16px;
-          padding: 2rem;
-          max-width: 500px;
-          width: 90%;
-          z-index: 1000;
-          display: none;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .disclaimer-full.show {
-          display: block;
-          animation: modalIn 0.3s ease-out;
-        }
-
-        @keyframes modalIn {
-          from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .disclaimer-overlay {
-          position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.7);
-          z-index: 999;
-          display: none;
-        }
-
-        .disclaimer-overlay.show {
-          display: block;
-        }
-
-        .disclaimer-full-text {
-          margin-bottom: 1.5rem;
-        }
-
-        .disclaimer-full-text p {
-          color: var(--text); line-height: 1.6; margin-bottom: 1rem;
-          font-size: 0.95rem;
-        }
-
-        .disclaimer-full-text p:last-child {
-          margin-bottom: 0; font-size: 0.85rem; 
-          color: var(--text-dim); font-style: italic;
-        }
-
-        .disclaimer-close-btn {
-          background: var(--primary); border: none;
-          color: white; padding: 0.75rem 1.5rem; border-radius: 8px;
-          cursor: pointer; font-weight: 600; font-size: 0.9rem;
-          transition: all 0.3s ease; width: 100%;
-        }
-
-        .disclaimer-close-btn:hover {
-          background: var(--primary-dark);
         }
 
         @media (max-width: 768px) {
           .disclaimer-section {
+            margin-top: 2rem;
+            padding: 1.5rem 0;
+          }
+          
+          .disclaimer-container {
+            padding: 0 1rem;
+          }
+          
+          .disclaimer-text {
+            font-size: 0.85rem;
+          }
+          
+          .disclaimer-note {
             font-size: 0.75rem;
-          }
-          
-          .disclaimer-compact {
-            padding: 0.4rem 0.75rem;
-            flex-direction: column;
-            gap: 0.25rem;
-          }
-          
-          .disclaimer-info-text {
-            font-size: 0.75rem;
-          }
-          
-          .disclaimer-full {
-            padding: 1.5rem;
-            width: 95%;
           }
         }
     </style>
@@ -1256,51 +1195,20 @@
     </div>
 
 <footer class="disclaimer-section" role="contentinfo" aria-label="Financial disclaimer">
-  <div class="disclaimer-compact">
-    <div class="disclaimer-warning">⚠️</div>
-    <div class="disclaimer-compact-text">
-      Hypothetical, not financial advice. Returns not guaranteed.
+  <div class="disclaimer-container">
+    <div class="disclaimer-text">
+      This calculator provides <strong>hypothetical projections</strong> for educational purposes only and is <strong>not financial advice</strong>. 
+      Investment returns are not guaranteed. Always consult a qualified financial professional before making investment decisions.
     </div>
-    <button class="disclaimer-expand-btn" id="disclaimerExpandBtn">Read Full Disclaimer</button>
-  </div>
-  
-  <div class="disclaimer-full" id="disclaimerFull">
-    <div class="disclaimer-full-text">
-      <p>
-        This calculator provides <strong>hypothetical projections</strong> for educational purposes only and is
-        <strong>not financial advice</strong>. Investment returns are not guaranteed and actual results may vary due to
-        market volatility, fees, taxes, and economic conditions. Past performance does not predict future results.
-        Always consult a qualified financial professional before making investment decisions.
-      </p>
-      <p>
-        Calculations assume consistent contributions and returns without accounting for inflation, fees, or taxes, which can substantially reduce actual outcomes.
-      </p>
+    <div class="disclaimer-note">
+      Calculations assume consistent contributions and returns without accounting for inflation, fees, or taxes.
     </div>
-    <button class="disclaimer-close-btn" id="disclaimerCloseBtn">Close</button>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" 
         integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" 
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<script>
-  (function () {
-    const expandBtn = document.getElementById('disclaimerExpandBtn');
-    const closeBtn = document.getElementById('disclaimerCloseBtn');
-    const fullDisclaimer = document.getElementById('disclaimerFull');
-
-    expandBtn.addEventListener('click', () => {
-      fullDisclaimer.classList.add('show');
-      expandBtn.style.display = 'none';
-    });
-
-    closeBtn.addEventListener('click', () => {
-      fullDisclaimer.classList.remove('show');
-      expandBtn.style.display = 'inline-block';
-    });
-  })();
-</script>
     
     <script>
         // Global variables
