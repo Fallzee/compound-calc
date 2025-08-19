@@ -776,23 +776,22 @@
                 display: flex;
                 background: var(--surface-light);
                 border-radius: 12px;
-                padding: 0.75rem 0.5rem;
+                padding: 0.75rem 0.25rem;
                 margin-bottom: 1.5rem;
                 gap: 0;
                 width: 100%;
                 max-width: 100%;
-                overflow: hidden;
+                overflow: visible;
             }
             
             .stat-card {
-                flex: 1;
+                flex: 1 1 0%;
                 background: transparent;
                 border-radius: 0;
-                padding: 0 0.125rem;
+                padding: 0.5rem 0.125rem;
                 position: relative;
                 text-align: center;
                 min-width: 0;
-                max-width: 33.333%;
             }
             
             .stat-card:not(:last-child)::after {
@@ -820,20 +819,21 @@
             }
             
             .stat-value {
-                font-size: 0.95rem;
+                font-size: 0.85rem;
                 margin-bottom: 0.1rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
                 font-weight: 700;
+                line-height: 1.1;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                text-overflow: clip;
             }
             
             .stat-label {
-                font-size: 0.6rem;
-                line-height: 1;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                font-size: 0.55rem;
+                line-height: 1.1;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                text-overflow: clip;
             }
             
             .result-value {
