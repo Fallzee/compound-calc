@@ -609,6 +609,10 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
+
+        .fit-text { 
+            transition: font-size 0.2s ease; 
+        }
         
         .stat-info {
             position: absolute;
@@ -776,9 +780,9 @@
                 display: flex;
                 background: var(--surface-light);
                 border-radius: 12px;
-                padding: 0.75rem 0.25rem;
+                padding: 0.75rem 0.6rem;
                 margin-bottom: 1.5rem;
-                gap: 0;
+                gap: 0.4rem;
                 width: 100%;
                 max-width: 100%;
                 overflow: visible;
@@ -788,7 +792,7 @@
                 flex: 1 1 0%;
                 background: transparent;
                 border-radius: 0;
-                padding: 0.5rem 0.125rem;
+                padding: 0.5rem 0.3rem;
                 position: relative;
                 text-align: center;
                 min-width: 0;
@@ -823,17 +827,15 @@
                 margin-bottom: 0.1rem;
                 font-weight: 700;
                 line-height: 1.1;
-                white-space: normal;
-                overflow-wrap: anywhere;
-                text-overflow: clip;
+                white-space: nowrap;
+                text-overflow: initial;
             }
             
             .stat-label {
                 font-size: 0.55rem;
                 line-height: 1.1;
-                white-space: normal;
-                overflow-wrap: anywhere;
-                text-overflow: clip;
+                white-space: nowrap;
+                text-overflow: initial;
             }
             
             .result-value {
@@ -1266,6 +1268,42 @@
             if (futureValue) {
                 futureValue.style.opacity = '1';
             }
+        }
+
+        function fitTextOnce(el, minScale = 0.7) {
+            if (!el || !el.parentNode) return;
+            
+            // Reset to original size first
+            el.style.fontSize = '';
+            const parent = el.parentNode;
+            const parentWidth = parent.offsetWidth - 12; // breathing room
+            
+            // Only shrink if actually overflowing
+            if (el.scrollWidth <= parentWidth) return;
+            
+            const originalSize = parseFloat(getComputedStyle(el).fontSize);
+            const minSize = originalSize * minScale;
+            let currentSize = originalSize;
+            
+            // Binary search for optimal size
+            let iterations = 0;
+            while (el.scrollWidth > parentWidth && currentSize > minSize && iterations < 10) {
+                currentSize *= 0.92;
+                el.style.fontSize = currentSize + 'px';
+                iterations++;
+            }
+        }
+        
+        function fitAllStats() {
+            if (window.innerWidth > 968) return; // desktop only
+            
+            ['totalContributions', 'totalInterest', 'safeWithdrawal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('fit-text');
+                    fitTextOnce(el);
+                }
+            });
         }
 
         // Configuration
@@ -1810,6 +1848,11 @@
                     scrollToResultsWithHighlight();
                 }
 
+                // Fit text after animations complete
+                setTimeout(() => {
+                    requestAnimationFrame(fitAllStats);
+                }, config.animationDuration + 50);
+
                 // Update chart
                 setTimeout(() => {
                     const chartData = generateChartData(
@@ -1956,6 +1999,15 @@
                 }
             });
 
+            // Debounced resize handler
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    fitAllStats();
+                }, 200);
+            });
+
             // Page visibility
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
@@ -1986,6 +2038,7 @@
             setupEventListeners();
             createConfetti(); // Welcome confetti on page load
             calculate(); // Initial calculation
+            setTimeout(fitAllStats, config.animationDuration + 100);
             console.log('Compound Interest Calculator initialized');
         }
 
