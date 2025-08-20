@@ -609,7 +609,7 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
-
+        
         .stat-info {
             position: absolute;
             top: 100%;
@@ -630,10 +630,6 @@
             transition: opacity 0.3s ease, max-height 0.3s ease;
             z-index: 100;
         }
-
-        .stat-info { display: none; }
-            @media (hover:hover) { .stat-info { display: block; } }
-
         
         .stat-card:hover .stat-info {
             opacity: 1;
@@ -780,9 +776,9 @@
                 display: flex;
                 background: var(--surface-light);
                 border-radius: 12px;
-                padding: 0.75rem 0.6rem;
+                padding: 0.75rem 0.25rem;
                 margin-bottom: 1.5rem;
-                gap: 0.4rem;
+                gap: 0;
                 width: 100%;
                 max-width: 100%;
                 overflow: visible;
@@ -792,7 +788,7 @@
                 flex: 1 1 0%;
                 background: transparent;
                 border-radius: 0;
-                padding: 0.5rem 0.3rem;
+                padding: 0.5rem 0.125rem;
                 position: relative;
                 text-align: center;
                 min-width: 0;
@@ -823,23 +819,22 @@
             }
             
             .stat-value {
-                 font-size: 1rem;
-                 margin-bottom: 0.1rem;
-                 font-weight: 700;
-                 line-height: 1.15;
-                 white-space: nowrap;
-                    overflow: hidden;
-                 text-overflow: ellipsis;
+                font-size: 0.85rem;
+                margin-bottom: 0.1rem;
+                font-weight: 700;
+                line-height: 1.1;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                text-overflow: clip;
             }
-
+            
             .stat-label {
-                 font-size: 0.65rem;
-                 line-height: 1.15;
-                  white-space: nowrap;
-                 overflow: hidden;
-                 text-overflow: ellipsis;
+                font-size: 0.55rem;
+                line-height: 1.1;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                text-overflow: clip;
             }
-
             
             .result-value {
                 font-size: 2.8rem;
@@ -1158,22 +1153,22 @@
             <div class="results-panel">
                 <div class="result-card">
                     <div class="result-label">Future Value</div>
-                    <div class="result-value" id="futureValue" aria-live="polite">$0</div>
+                    <div class="result-value" id="futureValue">$0</div>
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value" id="totalContributions" aria-live="polite">$0</div>
+                        <div class="stat-value" id="totalContributions">$0</div>
                         <div class="stat-label">Total Invested</div>
                         <div class="stat-info">Initial investment + all monthly contributions</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="totalInterest" aria-live="polite">$0</div>
+                        <div class="stat-value" id="totalInterest">$0</div>
                         <div class="stat-label">Interest Earned</div>
                         <div class="stat-info">The money your money made!</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="safeWithdrawal" aria-live="polite">$0/mo</div>
+                        <div class="stat-value" id="safeWithdrawal">$0/mo</div>
                         <div class="stat-label">Safe Withdrawal</div>
                         <div class="stat-info">4% rule: You can safely withdraw this much each month without depleting your portfolio</div>
                     </div>
@@ -1357,19 +1352,28 @@
             }
         }
 
-        // Compact currency for K/M/B without useless trailing .0
-        function compactCurrency(n) {
-            const abs = Math.abs(n);
-            const sign = n < 0 ? "-" : "";
-            if (abs >= 1_000_000_000) return `${sign}$${(abs/1_000_000_000).toFixed(abs % 1_000_000_000 === 0 ? 0 : 1)}B`;
-            if (abs >= 1_000_000)     return `${sign}$${(abs/1_000_000).toFixed(abs % 1_000_000 === 0 ? 0 : 1)}M`;
-            if (abs >= 1_000)         return `${sign}$${(abs/1_000).toFixed(abs % 1_000 === 0 ? 0 : 1)}K`;
-            return `${sign}$${Math.round(abs).toLocaleString()}`;
-        }
-        function compactMonthly(n) {
-            return compactCurrency(n).replace(/\b$/, "") + "/mo";
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                return '$' + (num / 1000000000).toFixed(1) + 'B';
+            } else if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                const thousands = num / 1000;
+                if (thousands % 1 === 0) {
+                    return '$' + thousands.toFixed(0) + 'K';
+                } else {
+                    return '$' + thousands.toFixed(1) + 'K';
+                }
+            }
+            return formatCurrency(num);
         }
 
+        function formatMonthlyAmount(num) {
+            if (num >= 10000) {
+                return '$' + (num / 1000).toFixed(1) + 'K/mo';
+            }
+            return formatCurrency(num) + '/mo';
+        }
 
         // Animation function
         function animateValue(elementId, startValue, endValue, duration, formatter = formatNumber) {
@@ -1551,6 +1555,14 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onHover: function(event, activeElements) {
+                        if (window.innerWidth <= 968 && activeElements.length > 0) {
+                            event.native.preventDefault();
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    },
                     interaction: {
                         mode: 'index',
                         intersect: false,
@@ -1602,6 +1614,25 @@
                     }
                 }
             });
+        }
+
+        function addChartTouchHandlers() {
+            const chartContainer = document.getElementById('chart-container');
+            if (chartContainer && window.innerWidth <= 968) {
+                chartContainer.addEventListener('touchstart', function(e) {
+                    document.body.style.overflow = 'hidden';
+                }, { passive: false });
+                
+                chartContainer.addEventListener('touchend', function(e) {
+                    setTimeout(() => {
+                        document.body.style.overflow = '';
+                    }, 100);
+                }, { passive: false });
+                
+                chartContainer.addEventListener('touchmove', function(e) {
+                    e.stopPropagation();
+                }, { passive: false });
+            }
         }
 
         function switchChart(type) {
@@ -1767,11 +1798,11 @@
                     inputs.compoundFrequency
                 );
 
-                // Animate results (compact formatting)
-                animateValue('futureValue', 0, result.futureValue, config.animationDuration, compactCurrency);
-                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8, compactCurrency);
-                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8, compactCurrency);
-                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, compactMonthly);
+                // Animate results
+                animateValue('futureValue', 0, result.futureValue, config.animationDuration);
+                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8);
+                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
+                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
 
                 // Trigger confetti when calculate button is clicked
                 if (event && event.target && event.target.classList.contains('calculate-btn')) {
@@ -1789,6 +1820,7 @@
                         inputs.compoundFrequency
                     );
                     updateChart(chartData);
+                    addChartTouchHandlers();
                 }, 100);
 
                 // Generate insights
