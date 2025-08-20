@@ -610,10 +610,6 @@
             transition: all 0.3s ease;
         }
 
-        .fit-text { 
-            transition: font-size 0.2s ease; 
-        }
-        
         .stat-info {
             position: absolute;
             top: 100%;
@@ -634,6 +630,10 @@
             transition: opacity 0.3s ease, max-height 0.3s ease;
             z-index: 100;
         }
+
+        .stat-info { display: none; }
+            @media (hover:hover) { .stat-info { display: block; } }
+
         
         .stat-card:hover .stat-info {
             opacity: 1;
@@ -823,20 +823,23 @@
             }
             
             .stat-value {
-                font-size: 0.85rem;
-                margin-bottom: 0.1rem;
-                font-weight: 700;
-                line-height: 1.1;
-                white-space: nowrap;
-                text-overflow: initial;
+                 font-size: 1rem;
+                 margin-bottom: 0.1rem;
+                 font-weight: 700;
+                 line-height: 1.15;
+                 white-space: nowrap;
+                    overflow: hidden;
+                 text-overflow: ellipsis;
             }
-            
+
             .stat-label {
-                font-size: 0.55rem;
-                line-height: 1.1;
-                white-space: nowrap;
-                text-overflow: initial;
+                 font-size: 0.65rem;
+                 line-height: 1.15;
+                  white-space: nowrap;
+                 overflow: hidden;
+                 text-overflow: ellipsis;
             }
+
             
             .result-value {
                 font-size: 2.8rem;
@@ -1155,22 +1158,22 @@
             <div class="results-panel">
                 <div class="result-card">
                     <div class="result-label">Future Value</div>
-                    <div class="result-value" id="futureValue">$0</div>
+                    <div class="result-value" id="futureValue" aria-live="polite">$0</div>
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value" id="totalContributions">$0</div>
+                        <div class="stat-value" id="totalContributions" aria-live="polite">$0</div>
                         <div class="stat-label">Total Invested</div>
                         <div class="stat-info">Initial investment + all monthly contributions</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="totalInterest">$0</div>
+                        <div class="stat-value" id="totalInterest" aria-live="polite">$0</div>
                         <div class="stat-label">Interest Earned</div>
                         <div class="stat-info">The money your money made!</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="safeWithdrawal">$0/mo</div>
+                        <div class="stat-value" id="safeWithdrawal" aria-live="polite">$0/mo</div>
                         <div class="stat-label">Safe Withdrawal</div>
                         <div class="stat-info">4% rule: You can safely withdraw this much each month without depleting your portfolio</div>
                     </div>
@@ -1270,42 +1273,6 @@
             }
         }
 
-        function fitTextOnce(el, minScale = 0.7) {
-            if (!el || !el.parentNode) return;
-            
-            // Reset to original size first
-            el.style.fontSize = '';
-            const parent = el.parentNode;
-            const parentWidth = parent.offsetWidth - 12; // breathing room
-            
-            // Only shrink if actually overflowing
-            if (el.scrollWidth <= parentWidth) return;
-            
-            const originalSize = parseFloat(getComputedStyle(el).fontSize);
-            const minSize = originalSize * minScale;
-            let currentSize = originalSize;
-            
-            // Binary search for optimal size
-            let iterations = 0;
-            while (el.scrollWidth > parentWidth && currentSize > minSize && iterations < 10) {
-                currentSize *= 0.92;
-                el.style.fontSize = currentSize + 'px';
-                iterations++;
-            }
-        }
-        
-        function fitAllStats() {
-            if (window.innerWidth > 968) return; // desktop only
-            
-            ['totalContributions', 'totalInterest', 'safeWithdrawal'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.classList.add('fit-text');
-                    fitTextOnce(el);
-                }
-            });
-        }
-
         // Configuration
         const config = {
             maxValue: 999999999,
@@ -1390,28 +1357,19 @@
             }
         }
 
-        function formatNumber(num) {
-            if (num >= 1000000000) {
-                return '$' + (num / 1000000000).toFixed(1) + 'B';
-            } else if (num >= 1000000) {
-                return '$' + (num / 1000000).toFixed(1) + 'M';
-            } else if (num >= 1000) {
-                const thousands = num / 1000;
-                if (thousands % 1 === 0) {
-                    return '$' + thousands.toFixed(0) + 'K';
-                } else {
-                    return '$' + thousands.toFixed(1) + 'K';
-                }
-            }
-            return formatCurrency(num);
+        // Compact currency for K/M/B without useless trailing .0
+        function compactCurrency(n) {
+            const abs = Math.abs(n);
+            const sign = n < 0 ? "-" : "";
+            if (abs >= 1_000_000_000) return `${sign}$${(abs/1_000_000_000).toFixed(abs % 1_000_000_000 === 0 ? 0 : 1)}B`;
+            if (abs >= 1_000_000)     return `${sign}$${(abs/1_000_000).toFixed(abs % 1_000_000 === 0 ? 0 : 1)}M`;
+            if (abs >= 1_000)         return `${sign}$${(abs/1_000).toFixed(abs % 1_000 === 0 ? 0 : 1)}K`;
+            return `${sign}$${Math.round(abs).toLocaleString()}`;
+        }
+        function compactMonthly(n) {
+            return compactCurrency(n).replace(/\b$/, "") + "/mo";
         }
 
-        function formatMonthlyAmount(num) {
-            if (num >= 10000) {
-                return '$' + (num / 1000).toFixed(1) + 'K/mo';
-            }
-            return formatCurrency(num) + '/mo';
-        }
 
         // Animation function
         function animateValue(elementId, startValue, endValue, duration, formatter = formatNumber) {
@@ -1593,14 +1551,6 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    onHover: function(event, activeElements) {
-                        if (window.innerWidth <= 968 && activeElements.length > 0) {
-                            event.native.preventDefault();
-                            document.body.style.overflow = 'hidden';
-                        } else {
-                            document.body.style.overflow = '';
-                        }
-                    },
                     interaction: {
                         mode: 'index',
                         intersect: false,
@@ -1652,25 +1602,6 @@
                     }
                 }
             });
-        }
-
-        function addChartTouchHandlers() {
-            const chartContainer = document.getElementById('chart-container');
-            if (chartContainer && window.innerWidth <= 968) {
-                chartContainer.addEventListener('touchstart', function(e) {
-                    document.body.style.overflow = 'hidden';
-                }, { passive: false });
-                
-                chartContainer.addEventListener('touchend', function(e) {
-                    setTimeout(() => {
-                        document.body.style.overflow = '';
-                    }, 100);
-                }, { passive: false });
-                
-                chartContainer.addEventListener('touchmove', function(e) {
-                    e.stopPropagation();
-                }, { passive: false });
-            }
         }
 
         function switchChart(type) {
@@ -1836,22 +1767,17 @@
                     inputs.compoundFrequency
                 );
 
-                // Animate results
-                animateValue('futureValue', 0, result.futureValue, config.animationDuration);
-                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8);
-                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8);
-                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, formatMonthlyAmount);
+                // Animate results (compact formatting)
+                animateValue('futureValue', 0, result.futureValue, config.animationDuration, compactCurrency);
+                animateValue('totalContributions', 0, result.totalContributed, config.animationDuration * 0.8, compactCurrency);
+                animateValue('totalInterest', 0, result.totalInterest, config.animationDuration * 0.8, compactCurrency);
+                animateValue('safeWithdrawal', 0, result.monthlySafeWithdrawal, config.animationDuration * 0.8, compactMonthly);
 
                 // Trigger confetti when calculate button is clicked
                 if (event && event.target && event.target.classList.contains('calculate-btn')) {
                     createConfetti();
                     scrollToResultsWithHighlight();
                 }
-
-                // Fit text after animations complete
-                setTimeout(() => {
-                    requestAnimationFrame(fitAllStats);
-                }, config.animationDuration + 50);
 
                 // Update chart
                 setTimeout(() => {
@@ -1863,7 +1789,6 @@
                         inputs.compoundFrequency
                     );
                     updateChart(chartData);
-                    addChartTouchHandlers();
                 }, 100);
 
                 // Generate insights
@@ -1999,15 +1924,6 @@
                 }
             });
 
-            // Debounced resize handler
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    fitAllStats();
-                }, 200);
-            });
-
             // Page visibility
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
@@ -2038,7 +1954,6 @@
             setupEventListeners();
             createConfetti(); // Welcome confetti on page load
             calculate(); // Initial calculation
-            setTimeout(fitAllStats, config.animationDuration + 100);
             console.log('Compound Interest Calculator initialized');
         }
 
